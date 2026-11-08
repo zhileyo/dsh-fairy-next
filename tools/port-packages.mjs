@@ -70,7 +70,7 @@ const PACKAGES = [
   },
   {
     dir: 'browser-dock/dsh-browser-dock',
-    name: 'dsh-fairy-browser-dock',
+    name: 'dsh-fairy-dock',
     version: '0.1.0',
     description: 'Browser dock: an in-app browser surface plus the Playwright proxy it drives.',
     inject: [

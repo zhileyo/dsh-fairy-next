@@ -82,7 +82,7 @@
    **新包的首版例外**：关系只能挂在已存在的包上，所以首版要用仓库 Secret `NPM_TOKEN` +
    工作流输入 `bootstrap_token=true` 发一次。发完立刻删掉 secret、那个引导步骤和输入——
    留着它等于把 OIDC 换成长期 token。
-5. **搞清楚 `lib/client.js` 是产物还是源码。** `dsh-fairy-visual`、`dsh-fairy-browser-dock`
+5. **搞清楚 `lib/client.js` 是产物还是源码。** `dsh-fairy-visual`、`dsh-fairy-dock`
    有 `src/client/`：改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。
    `dsh-fairy-balance`、`dsh-fairy-startup`、`dsh-fairy-speech` **没有** `src/client/`：它们的
    `lib/client.js` 就是源码（上游预构建后手工移植成 module-loader 形态，见

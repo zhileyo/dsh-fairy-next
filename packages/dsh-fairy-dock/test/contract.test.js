@@ -133,8 +133,8 @@ test('renders title and controls over the page without a URL header row', () => 
 
 test('mounts only in the official shell overlay and cleans style ownership', () => {
   assert.match(client, /ctx\.slots\.inject\('shell\.overlay'/);
-  assert.match(client, /id: 'dsh-fairy-browser-dock'/);
-  assert.match(client, /style\.setAttribute\('data-plugin', 'dsh-fairy-browser-dock'\)/);
+  assert.match(client, /id: 'dsh-fairy-dock'/);
+  assert.match(client, /style\.setAttribute\('data-plugin', 'dsh-fairy-dock'\)/);
   assert.match(client, /document\.getElementById\(STYLE_ID\)\?\.remove\(\)/);
   assert.match(client, /controller\?\.abort\(\)/);
 });

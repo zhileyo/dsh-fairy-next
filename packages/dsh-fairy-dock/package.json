@@ -1,5 +1,5 @@
 {
-  "name": "dsh-fairy-browser-dock",
+  "name": "dsh-fairy-dock",
   "version": "0.1.1",
   "description": "Browser dock: an in-app browser surface plus the Playwright proxy it drives.",
   "type": "module",
@@ -44,7 +44,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zhileyo/dsh-fairy-next.git",
-    "directory": "packages/dsh-fairy-browser-dock"
+    "directory": "packages/dsh-fairy-dock"
   },
   "bugs": {
     "url": "https://github.com/zhileyo/dsh-fairy-next/issues"

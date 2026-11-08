@@ -23,7 +23,7 @@ const KEYWORDS = {
   'dsh-fairy-speech': ['dsh', 'dsh-plugin', 'tts', 'voice', 'gpt-sovits', 'index-tts'],
   'dsh-fairy-startup': ['dsh', 'dsh-plugin', 'session', 'startup'],
   'dsh-fairy-balance': ['dsh', 'dsh-plugin', 'balance', 'usage', 'sidebar'],
-  'dsh-fairy-browser-dock': ['dsh', 'dsh-plugin', 'browser', 'playwright', 'dock'],
+  'dsh-fairy-dock': ['dsh', 'dsh-plugin', 'browser', 'playwright', 'dock'],
   'dsh-fairy-contracts': ['dsh', 'dsh-plugin', 'contracts', 'dom-anchors'],
 }
 

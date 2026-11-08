@@ -14,9 +14,9 @@ importers:
       dsh-fairy-balance:
         specifier: link:../../packages/dsh-fairy-balance
         version: link:../../packages/dsh-fairy-balance
-      dsh-fairy-browser-dock:
-        specifier: link:../../packages/dsh-fairy-browser-dock
-        version: link:../../packages/dsh-fairy-browser-dock
+      dsh-fairy-dock:
+        specifier: link:../../packages/dsh-fairy-dock
+        version: link:../../packages/dsh-fairy-dock
       dsh-fairy-contracts:
         specifier: link:../../packages/dsh-fairy-contracts
         version: link:../../packages/dsh-fairy-contracts

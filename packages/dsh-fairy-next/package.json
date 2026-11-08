@@ -20,7 +20,7 @@
     "dsh-fairy-startup": "^0.1.1",
     "dsh-fairy-balance": "^0.1.1",
     "dsh-fairy-speech": "^0.1.1",
-    "dsh-fairy-browser-dock": "^0.1.1"
+    "dsh-fairy-dock": "^0.1.1"
   },
   "engines": {
     "node": ">=22.12.0"

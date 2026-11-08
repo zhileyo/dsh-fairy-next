@@ -11,7 +11,7 @@ const COMMAND_FILE = join(RUNTIME_DIR, 'command.json');
 const CONTROL_TOKEN_FILE = join(RUNTIME_DIR, 'control-token');
 const MAX_CONTROL_BYTES = 2048;
 const appliedContexts = new WeakSet();
-const diagnostics = createFairyDiagnostics('dsh-fairy-browser-dock');
+const diagnostics = createFairyDiagnostics('dsh-fairy-dock');
 
 function json(res, status, value) {
   if (res.writableEnded || res.destroyed) return;
@@ -77,7 +77,7 @@ function writeControlToken() {
   }
 }
 
-export const name = 'dsh-fairy-browser-dock';
+export const name = 'dsh-fairy-dock';
 
 export function apply(ctx) {
   return diagnostics.guard('apply', () => {

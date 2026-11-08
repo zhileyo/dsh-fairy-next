@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: 'dsh-fairy-browser-dock',
+  id: 'dsh-fairy-dock',
   factory: (require) => {
     const module = { exports: {} };
     const exports = module.exports;
@@ -96,7 +96,7 @@ window.__ModuleLoader__.load({
 		const React = require("react");
 		const { jsx, jsxs } = require("react/jsx-runtime");
 		const { createFairyDiagnostics } = require_client_diagnostics();
-		const diagnostics = createFairyDiagnostics("dsh-fairy-browser-dock");
+		const diagnostics = createFairyDiagnostics("dsh-fairy-dock");
 		const FALLBACK_POLL_MS = 800;
 		const MIN_WIDTH = 200;
 		const MIN_HEIGHT = 112.5;
@@ -133,7 +133,7 @@ window.__ModuleLoader__.load({
 			document.getElementById(STYLE_ID)?.remove();
 			const style = document.createElement("style");
 			style.id = STYLE_ID;
-			style.setAttribute("data-plugin", "dsh-fairy-browser-dock");
+			style.setAttribute("data-plugin", "dsh-fairy-dock");
 			style.textContent = `
     .dsh-browser-dock{position:fixed;top:64px;right:18px;width:min(240px,calc(100vw - 36px));height:min(180px,calc(100vh - 96px));min-width:${MIN_WIDTH}px;min-height:${MIN_HEIGHT}px;max-width:calc(100vw - 36px);max-height:calc(100vh - 82px);z-index:76;display:flex;flex-direction:column;overflow:hidden;resize:none;border:1px solid var(--dsw-alias-border-l2,rgba(120,130,145,.28));border-radius:14px;background:#fff;color:#17202b;box-shadow:0 18px 48px rgba(15,23,42,.22),0 3px 12px rgba(15,23,42,.12);font:12px/1.35 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;isolation:isolate}
     .dsh-browser-dock::before{content:"";position:absolute;z-index:2;inset:0 0 auto;height:32px;background:linear-gradient(180deg,rgba(68,76,86,.13) 0%,rgba(68,76,86,.035) 58%,rgba(68,76,86,0) 100%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);-webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.82) 42%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.82) 42%,transparent 100%);pointer-events:none}
@@ -419,7 +419,7 @@ window.__ModuleLoader__.load({
 				});
 			};
 			return jsxs("section", {
-				className: "dsh-fairy-browser-dock",
+				className: "dsh-fairy-dock",
 				"data-minimized": minimized ? "true" : "false",
 				"data-loading": state.loading ? "true" : "false",
 				"data-status": state.status || "idle",
@@ -515,7 +515,7 @@ window.__ModuleLoader__.load({
 				ctx.effect(() => injectStyle(), "dsh-browser-dock style lifecycle");
 				ctx.slots.inject("shell.overlay", () => ctx.slots.register({
 					name: "shell.overlay",
-					id: "dsh-fairy-browser-dock",
+					id: "dsh-fairy-dock",
 					order: 90
 				}, () => jsx(BrowserDock, { sessions: ctx.sessions })));
 			}, { surface: "client" });

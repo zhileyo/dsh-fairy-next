@@ -33,7 +33,9 @@ importers:
         specifier: ^0.1.1
         version: link:../dsh-fairy-contracts
 
-  packages/dsh-fairy-browser-dock:
+  packages/dsh-fairy-contracts: {}
+
+  packages/dsh-fairy-dock:
     dependencies:
       '@deepseek-ai/cordis':
         specifier: ~4.0.5
@@ -42,16 +44,14 @@ importers:
         specifier: ^0.1.1
         version: link:../dsh-fairy-contracts
 
-  packages/dsh-fairy-contracts: {}
-
   packages/dsh-fairy-next:
     dependencies:
       dsh-fairy-balance:
         specifier: ^0.1.1
         version: link:../dsh-fairy-balance
-      dsh-fairy-browser-dock:
+      dsh-fairy-dock:
         specifier: ^0.1.1
-        version: link:../dsh-fairy-browser-dock
+        version: link:../dsh-fairy-dock
       dsh-fairy-speech:
         specifier: ^0.1.1
         version: link:../dsh-fairy-speech

@@ -7,7 +7,7 @@ const os = require('node:os');
 const path = require('node:path');
 const readline = require('node:readline');
 const { createFairyDiagnostics } = require('dsh-fairy-contracts/client-diagnostics');
-const diagnostics = createFairyDiagnostics('dsh-fairy-browser-dock');
+const diagnostics = createFairyDiagnostics('dsh-fairy-dock');
 
 process.on('uncaughtExceptionMonitor', (error, origin) => {
   diagnostics.error('proxy.top-level', error, { origin });

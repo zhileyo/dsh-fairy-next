@@ -63,7 +63,7 @@
 | `dsh-fairy-startup` | 新 document 落到空白会话页 | `lib/client.js` 即源码 |
 | `dsh-fairy-balance` | 余额卡与今日 token 估算 | `lib/client.js` 即源码 |
 | `dsh-fairy-speech` | 朗读控制、波形、TTS 配置页（宿主半边 + 客户端半边） | `lib/client.js` 即源码 |
-| `dsh-fairy-browser-dock` | 浏览器 dock 与 `@playwright/mcp` 的 stdio 代理（`proxy.cjs`） | `src/client/` → rollup |
+| `dsh-fairy-dock` | 浏览器 dock 与 `@playwright/mcp` 的 stdio 代理（`proxy.cjs`） | `src/client/` → rollup |
 | `dsh-fairy-contracts` | 跨包只读契约（命名空间、DOM 锚点、词汇表） | 纯 ESM，不打包 |
 
 包名不统一是有意的：仓库与锚包都叫 `dsh-fairy-next`（市场按这个名字装），六个子包是
