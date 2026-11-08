@@ -27,19 +27,19 @@ importers:
   packages/dsh-fairy-next:
     dependencies:
       dsh-fairy-next-balance:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-balance
       dsh-fairy-next-browser-dock:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-browser-dock
       dsh-fairy-next-startup:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-startup
       dsh-fairy-next-visual:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-visual
       dsh-fairy-next-voice:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-voice
 
   packages/dsh-fairy-next-balance:
@@ -48,7 +48,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-next-contracts:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-contracts
 
   packages/dsh-fairy-next-browser-dock:
@@ -57,7 +57,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-next-contracts:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-contracts
 
   packages/dsh-fairy-next-contracts: {}
@@ -68,7 +68,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-next-contracts:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-contracts
 
   packages/dsh-fairy-next-visual:
@@ -77,7 +77,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-next-contracts:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-contracts
 
   packages/dsh-fairy-next-voice:
@@ -86,7 +86,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-next-contracts:
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../dsh-fairy-next-contracts
       mdast-util-from-markdown:
         specifier: 2.0.3

@@ -1,6 +1,6 @@
 {
   "name": "dsh-fairy-next-startup",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fairy startup: every new document lands on a fresh session instead of restoring the previous one.",
   "type": "module",
   "main": "./lib/index.js",
@@ -21,7 +21,7 @@
     }
   },
   "dependencies": {
-    "dsh-fairy-next-contracts": "^0.1.0"
+    "dsh-fairy-next-contracts": "^0.1.1"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.5"
