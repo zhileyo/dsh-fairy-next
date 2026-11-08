@@ -352,7 +352,7 @@ test('shares one bounded availability request across the controller and all mess
 test('releases one-time gesture listeners and plugin-owned styles', () => {
   assert.match(source, /if \(audioReady\) return undefined/);
   assert.match(source, /\[audioReady, primeAudio, volume\]/);
-  assert.match(source, /style\.setAttribute\('data-plugin', 'dsh-fairy-tts'\)/);
+  assert.match(source, /style\.setAttribute\('data-plugin', 'dsh-fairy-speech'\)/);
   assert.match(source, /document\.getElementById\(VOICE_STYLE_ID\)\?\.remove\(\)/);
 });
 

@@ -28,7 +28,7 @@ const LOCAL_DOCS_URL = process.env.DSH_FAIRY_DOCS_URL || 'http://127.0.0.1:9880/
 // always reading the primary home.
 const FAIRY_DSH_HOME = process.env.DSH_HOME || join(homedir(), '.dsh');
 const REFERENCE_AUDIO_PATH = join(FAIRY_DSH_HOME, 'fairy-voice', 'runtime', 'reference', 'fairy_ref.wav');
-const diagnostics = createFairyDiagnostics('dsh-fairy-tts');
+const diagnostics = createFairyDiagnostics('dsh-fairy-speech');
 
 const MAX_TTS_TEXT_LENGTH = 500;
 const MAX_SENTENCE_LENGTH = 40;

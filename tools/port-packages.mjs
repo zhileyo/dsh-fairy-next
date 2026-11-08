@@ -51,7 +51,7 @@ const PACKAGES = [
   },
   {
     dir: 'fairy-voice/dsh-fairy-voice',
-    name: 'dsh-fairy-tts',
+    name: 'dsh-fairy-speech',
     version: '1.0.0',
     description: 'Fairy voice: local TTS playback for assistant replies through an external local TTS runtime.',
     inject: [

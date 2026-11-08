@@ -21,7 +21,7 @@ Ported verbatim (then adapted as listed further down):
     client-diagnostics.cjs,diagnostics.js,types.d.ts} <- fairy-contracts/
   packages/dsh-fairy-startup/**                       <- fairy-startup/dsh-fairy-startup
   packages/dsh-fairy-balance/**                       <- balance-meter/dsh-balance-meter
-  packages/dsh-fairy-tts/**                           <- fairy-voice/dsh-fairy-voice
+  packages/dsh-fairy-speech/**                        <- fairy-voice/dsh-fairy-voice
   packages/dsh-fairy-browser-dock/**                  <- browser-dock/dsh-browser-dock
   packages/dsh-fairy-visual/src/client/style.js       <- fairy-visual .../src/client/style.js
 
@@ -152,7 +152,7 @@ Third-party notices
 Apache-2.0 许可范围内，发布时必须继续保留各自的许可证、版权与 NOTICE 要求。
 
   - mdast-util-from-markdown、mdast-util-gfm、micromark-extension-gfm
-    随 dsh-fairy-tts 安装；MIT（syntax-tree 贡献者）
+    随 dsh-fairy-speech 安装；MIT（syntax-tree 贡献者）
   - @playwright/mcp
     可选，由 dsh-fairy-browser-dock/proxy.cjs 在运行期解析；
     Apache-2.0（Microsoft），随包附带声明

@@ -9,6 +9,6 @@
     - id: balance-meter
       name: 'dsh-fairy-balance'
     - id: fairy-voice
-      name: 'dsh-fairy-tts'
+      name: 'dsh-fairy-speech'
     - id: browser-dock
       name: 'dsh-fairy-browser-dock'

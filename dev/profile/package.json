@@ -10,7 +10,7 @@
     "dsh-fairy-contracts": "link:../../packages/dsh-fairy-contracts",
     "dsh-fairy-startup": "link:../../packages/dsh-fairy-startup",
     "dsh-fairy-visual": "link:../../packages/dsh-fairy-visual",
-    "dsh-fairy-tts": "link:../../packages/dsh-fairy-tts"
+    "dsh-fairy-speech": "link:../../packages/dsh-fairy-speech"
   },
   "dsh": {
     "profile": {

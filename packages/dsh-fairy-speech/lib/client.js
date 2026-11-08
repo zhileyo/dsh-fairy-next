@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: 'dsh-fairy-tts',
+  id: 'dsh-fairy-speech',
   factory: (require) => {
     const React = require('react');
     const jsx = require('react/jsx-runtime');
@@ -98,7 +98,7 @@ module.exports = { FAIRY_LOG_PREFIX, createFairyDiagnostics };
 // DSH_FAIRY_CLIENT_DIAGNOSTICS_END
       return module.exports.createFairyDiagnostics;
     })();
-    const diagnostics = createFairyDiagnostics('dsh-fairy-tts');
+    const diagnostics = createFairyDiagnostics('dsh-fairy-speech');
     const voiceStateBySession = new Map();
     const emptyActiveSelection = { key: 'empty-chat', epoch: 0 };
     const emptyActiveSessionStore = { getSnapshot: () => emptyActiveSelection, subscribe: () => () => {} };
@@ -407,7 +407,7 @@ module.exports = { FAIRY_LOG_PREFIX, createFairyDiagnostics };
       if (typeof document === 'undefined' || document.getElementById(VOICE_STYLE_ID)) return;
       const style = document.createElement('style');
       style.id = VOICE_STYLE_ID;
-      style.setAttribute('data-plugin', 'dsh-fairy-tts');
+      style.setAttribute('data-plugin', 'dsh-fairy-speech');
       style.textContent = `
 .dsh-fairy-voice-controls{display:inline-flex;align-items:center;gap:4px;height:28px;padding:2px 5px;border:1px solid var(--dsw-alias-border-l2);border-radius:8px;background:var(--dsw-alias-bg-layer-1);box-sizing:border-box}
 .dsh-fairy-voice-auto{width:22px;height:22px;display:grid;place-items:center;flex:none;padding:0;border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-tertiary);cursor:pointer;transition:background .15s,color .15s}

@@ -16,7 +16,7 @@ What it actually carries is the wiring.
 
 The five patch entries are `fairy-visual` → `dsh-fairy-visual`,
 `fairy-startup` → `dsh-fairy-startup`, `balance-meter` →
-`dsh-fairy-balance`, `fairy-voice` → `dsh-fairy-tts` and
+`dsh-fairy-balance`, `fairy-voice` → `dsh-fairy-speech` and
 `browser-dock` → `dsh-fairy-browser-dock`. Each entry is a separate
 plugin load, which is why a broken sibling degrades to one inactive entry
 instead of taking the whole skin down. Removing a line is how you disable that

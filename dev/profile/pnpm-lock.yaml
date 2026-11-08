@@ -26,9 +26,9 @@ importers:
       dsh-fairy-startup:
         specifier: link:../../packages/dsh-fairy-startup
         version: link:../../packages/dsh-fairy-startup
-      dsh-fairy-tts:
-        specifier: link:../../packages/dsh-fairy-tts
-        version: link:../../packages/dsh-fairy-tts
+      dsh-fairy-speech:
+        specifier: link:../../packages/dsh-fairy-speech
+        version: link:../../packages/dsh-fairy-speech
       dsh-fairy-visual:
         specifier: link:../../packages/dsh-fairy-visual
         version: link:../../packages/dsh-fairy-visual

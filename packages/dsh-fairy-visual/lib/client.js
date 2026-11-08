@@ -8882,7 +8882,7 @@ function requireClient () {
 	        }
 	      };
 	      if (state === 'missing') {
-	        return jsx(Card, { title: '语音服务（TTS）', wide: true, children: jsx('div', { className: 'dsh-fairy-rows dsh-fairy-rows--padded', children: jsx('p', { className: 'dsh-fairy-hint', children: '未安装 dsh-fairy-tts，语音服务不可配置。' }) }) });
+	        return jsx(Card, { title: '语音服务（TTS）', wide: true, children: jsx('div', { className: 'dsh-fairy-rows dsh-fairy-rows--padded', children: jsx('p', { className: 'dsh-fairy-hint', children: '未安装 dsh-fairy-speech，语音服务不可配置。' }) }) });
 	      }
 	      return jsx(Card, {
 	        title: '语音服务（TTS）',

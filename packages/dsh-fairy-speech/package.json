@@ -1,5 +1,5 @@
 {
-  "name": "dsh-fairy-tts",
+  "name": "dsh-fairy-speech",
   "version": "0.1.1",
   "description": "Fairy voice: local TTS playback for assistant replies through an external local TTS runtime.",
   "type": "module",
@@ -50,7 +50,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zhileyo/dsh-fairy-next.git",
-    "directory": "packages/dsh-fairy-tts"
+    "directory": "packages/dsh-fairy-speech"
   },
   "bugs": {
     "url": "https://github.com/zhileyo/dsh-fairy-next/issues"

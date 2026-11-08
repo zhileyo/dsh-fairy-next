@@ -52,26 +52,17 @@ importers:
       dsh-fairy-browser-dock:
         specifier: ^0.1.1
         version: link:../dsh-fairy-browser-dock
+      dsh-fairy-speech:
+        specifier: ^0.1.1
+        version: link:../dsh-fairy-speech
       dsh-fairy-startup:
         specifier: ^0.1.1
         version: link:../dsh-fairy-startup
-      dsh-fairy-tts:
-        specifier: ^0.1.1
-        version: link:../dsh-fairy-tts
       dsh-fairy-visual:
         specifier: ^0.1.1
         version: link:../dsh-fairy-visual
 
-  packages/dsh-fairy-startup:
-    dependencies:
-      '@deepseek-ai/cordis':
-        specifier: ~4.0.5
-        version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
-      dsh-fairy-contracts:
-        specifier: ^0.1.1
-        version: link:../dsh-fairy-contracts
-
-  packages/dsh-fairy-tts:
+  packages/dsh-fairy-speech:
     dependencies:
       '@deepseek-ai/cordis':
         specifier: ~4.0.5
@@ -88,6 +79,15 @@ importers:
       micromark-extension-gfm:
         specifier: 3.0.0
         version: 3.0.0
+
+  packages/dsh-fairy-startup:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: ~4.0.5
+        version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
+      dsh-fairy-contracts:
+        specifier: ^0.1.1
+        version: link:../dsh-fairy-contracts
 
   packages/dsh-fairy-visual:
     dependencies:

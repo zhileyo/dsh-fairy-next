@@ -20,7 +20,7 @@ const REPO_URL = 'https://github.com/zhileyo/dsh-fairy-next'
 const KEYWORDS = {
   'dsh-fairy-next': ['dsh', 'dsh-plugin', 'theme', 'fairy', 'zenless-zone-zero', 'hdd', 'skin'],
   'dsh-fairy-visual': ['dsh', 'dsh-plugin', 'theme', 'fairy', 'hdd', 'zenless-zone-zero'],
-  'dsh-fairy-tts': ['dsh', 'dsh-plugin', 'tts', 'voice', 'gpt-sovits', 'index-tts'],
+  'dsh-fairy-speech': ['dsh', 'dsh-plugin', 'tts', 'voice', 'gpt-sovits', 'index-tts'],
   'dsh-fairy-startup': ['dsh', 'dsh-plugin', 'session', 'startup'],
   'dsh-fairy-balance': ['dsh', 'dsh-plugin', 'balance', 'usage', 'sidebar'],
   'dsh-fairy-browser-dock': ['dsh', 'dsh-plugin', 'browser', 'playwright', 'dock'],

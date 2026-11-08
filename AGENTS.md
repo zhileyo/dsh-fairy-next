@@ -11,7 +11,7 @@
 [Chengzhibense/Fairy-DSH](https://github.com/Chengzhibense/Fairy-DSH)（按 0.1.1-rc.2 编写）。
 
 仓库与锚包叫 `dsh-fairy-next`，六个子包是 `dsh-fairy-*`：`dsh-fairy` 与
-`dsh-fairy-voice` 在 npm 上已被他人占用，所以语音包叫 `dsh-fairy-tts`。包名只是安装名，
+`dsh-fairy-voice` 在 npm 上已被他人占用，所以语音包叫 `dsh-fairy-speech`。包名只是安装名，
 宿主契约里的 `dsh-fairy` / `fairy-*` 标识符不跟着变（见「硬约束」第 1 条）。
 
 ## 环境
@@ -84,7 +84,7 @@
    留着它等于把 OIDC 换成长期 token。
 5. **搞清楚 `lib/client.js` 是产物还是源码。** `dsh-fairy-visual`、`dsh-fairy-browser-dock`
    有 `src/client/`：改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。
-   `dsh-fairy-balance`、`dsh-fairy-startup`、`dsh-fairy-tts` **没有** `src/client/`：它们的
+   `dsh-fairy-balance`、`dsh-fairy-startup`、`dsh-fairy-speech` **没有** `src/client/`：它们的
    `lib/client.js` 就是源码（上游预构建后手工移植成 module-loader 形态，见
    `tools/port-packages.mjs`），`build-all` 会明确跳过——这三个包要直接改 `lib`。改之前先看
    `packages/<pkg>/src` 在不在，别改错文件。
@@ -121,4 +121,10 @@
   （`couldn't create signal pipe`、`failed to execute prompt script`）；可用
   `git -c http.sslBackend=openssl -c "http.https://github.com/.extraheader=Authorization: basic <base64(x-access-token:TOKEN)>"`。
   `gh` CLI 可用，`Invoke-WebRequest` 走 HTTPS 会 SSL 失败，别用它探测 GitHub/CNB。
+- **npm 对新包名有创建速率限制**：一次发多个「从没在 registry 上出现过」的名字，很快就会
+  `E429` + `Could not publish, as user undefined: rate limited exceeded`。这不是凭据、manifest
+  或限流窗口的问题——连 `--otp` 换成 token 也一样，registry 也不给 `retry-after`。
+  同类账号的实测（[npm/cli#8507](https://github.com/npm/cli/issues/8507)）是「发到第 25 个
+  之后当天就不让再建新包，第二天才恢复」。已上架的包正常发新版本不受影响；已发出去的版本
+  重跑会被 skip，所以重试是安全的，只是要等。
 - `.dsh-dev-home/`、`.dsh-market-home/`、`.pnpm-store/`、`.agents/` 都是本地产物，不要提交。
