@@ -117,6 +117,33 @@ CNB 会在下一个整点跟上；想立刻同步就在 CNB 页面手动触发�
    （fine-grained token，Contents: Read-only 即可）；
 2. 在 `.cnb.yml` 的两个 job 里恢复 `imports:` 与 `username` / `password` 两行。
 
+## 用 `cnb` CLI 加速
+
+CNB 官方 CLI 是 `@cnbcool/cnb-cli`（`npm i -g @cnbcool/cnb-cli`），本机没预装，
+`cnb-*` 那批 skill 只在 CNB 的流水线/云原生开发环境里开箱可用。
+
+```powershell
+npm install -g @cnbcool/cnb-cli
+cnb login          # OAuth2 设备授权，浏览器点一下
+cnb status
+```
+
+设备授权的 token 拿不到高危 scope，**仓库的增删必须本人在网页做**：
+
+```text
+repositories delete-repo → 403 errcode 10025 missing scopes: repo-delete:rw
+repositories create-repo → 403 errcode 10025 missing scopes: group-resource:rw
+```
+
+除此之外的步骤 CLI 都能代劳：
+
+| 动作 | 命令 |
+| --- | --- |
+| 推 CNB（git 认证） | `git -c credential.helper='!cnb git-credential' push cnb main` |
+| 注册/同步定时任务 | `cnb build build-crontab-sync --repo zhileyo/dsh-fairy-next --branch main` |
+| 手动触发一次拉取 | `cnb build start-build --repo zhileyo/dsh-fairy-next --branch main` |
+| 看构建结果 | `cnb build get-build-logs --repo zhileyo/dsh-fairy-next` |
+
 ## 排错
 
 | 现象 | 原因 / 处理 |
