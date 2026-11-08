@@ -105,15 +105,27 @@ jobs:
             published+=("$name@$version")
           done
 
+          # 注意：这个花括号块的退出码是块内最后一条命令的退出码，而 `[[ ]] && echo`
+          # 在列表为空时返回 1——配合 set -e 会把整个步骤判失败。所以用 if 而不是 &&，
+          # 并在末尾显式 true 收尾。
           {
-            echo "## npm publish$([[ "$DRY_RUN" == "true" ]] && echo '（dry-run）')"
+            if [[ "$DRY_RUN" == "true" ]]; then
+              echo "## npm publish（dry-run）"
+            else
+              echo "## npm publish"
+            fi
             echo
             echo "| 包 | 结果 |"
             echo "| --- | --- |"
-            for item in "${published[@]:-}"; do
-              [[ -n "$item" ]] && echo "| \`$item\` | 已发布 |"
-            done
-            for item in "${skipped[@]:-}"; do
-              [[ -n "$item" ]] && echo "| \`$item\` | 已存在，跳过 |"
-            done
+            if (( ${#published[@]} )); then
+              for item in "${published[@]}"; do
+                echo "| \`$item\` | 已发布 |"
+              done
+            fi
+            if (( ${#skipped[@]} )); then
+              for item in "${skipped[@]}"; do
+                echo "| \`$item\` | 已存在，跳过 |"
+              done
+            fi
+            true
           } >> "$GITHUB_STEP_SUMMARY"
