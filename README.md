@@ -13,9 +13,8 @@
 - **镜像**：<https://cnb.cool/zhileyo/dsh-fairy-next>（只读，每小时从 GitHub 拉取）
 
 本项目是 [Chengzhibense/Fairy-DSH](https://github.com/Chengzhibense/Fairy-DSH) 在
-**DSH 0.2.1-rc.2** 上的移植与适配（上游按 0.1.1-rc.2 编写）。上游许可、改动说明与商标
-边界见 [NOTICE](NOTICE)、[LICENSE](LICENSE)、[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)、
-[TRADEMARKS.md](TRADEMARKS.md)。
+**DSH 0.2.1-rc.2** 上的移植与适配（上游按 0.1.1-rc.2 编写）。上游许可、逐项改动、第三方
+许可与商标边界都收在 [NOTICE](NOTICE) 里，许可证全文见 [LICENSE](LICENSE)。
 
 ## 目录
 
@@ -283,6 +282,6 @@ CNB 得先在分支里读到 `.cnb.yml`，才知道有这条拉取流水线。�
 
 ## 许可
 
-Apache-2.0，见 [LICENSE](LICENSE)。上游出处与逐项改动见 [NOTICE](NOTICE)；第三方组件许可见
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)；《绝区零》相关名称与形象的权利归属及本项目的
-使用边界见 [TRADEMARKS.md](TRADEMARKS.md)。
+Apache-2.0，见 [LICENSE](LICENSE)。上游出处、逐项改动（20 条）、第三方组件许可与
+《绝区零》相关名称/形象的使用边界都在 [NOTICE](NOTICE) 里——它就是本仓库唯一的
+归属与声明文件。

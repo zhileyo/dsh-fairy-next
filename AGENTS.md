@@ -83,7 +83,7 @@
 | [docs/VERIFICATION.md](docs/VERIFICATION.md) | `tools/cdp/` 工具清单、一致性现状、已验证行为、差异归因 |
 | [docs/TTS.md](docs/TTS.md) | 两种 TTS 协议的选型与接入 |
 | [docs/REPO.md](docs/REPO.md) | 仓库迁移/建镜像的逐步操作清单 + `cnb` CLI 用法 |
-| [NOTICE](NOTICE) / [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) / [TRADEMARKS.md](TRADEMARKS.md) | 上游出处、第三方许可、商标边界 |
+| [NOTICE](NOTICE) / [LICENSE](LICENSE) | 上游出处、20 条改动说明、第三方许可、商标边界（NOTICE 是唯一的归属文件，不要拆） |
 
 ## 已知陷阱
 

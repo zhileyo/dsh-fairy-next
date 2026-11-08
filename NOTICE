@@ -145,6 +145,48 @@ Modifications made by this project
     `MutationObserver` so the plugin's later-rendered slider is covered too.
 
 --------------------------------------------------------------------------
+Third-party notices
+--------------------------------------------------------------------------
+
+本仓库不复制第三方源码。以下依赖由包管理器或 DSH 宿主安装；它们不在本仓库
+Apache-2.0 许可范围内，发布时必须继续保留各自的许可证、版权与 NOTICE 要求。
+
+  - mdast-util-from-markdown、mdast-util-gfm、micromark-extension-gfm
+    随 dsh-fairy-next-voice 安装；MIT（syntax-tree 贡献者）
+  - @playwright/mcp
+    可选，由 dsh-fairy-next-browser-dock/proxy.cjs 在运行期解析；
+    Apache-2.0（Microsoft），随包附带声明
+  - rollup、@rollup/plugin-commonjs、@rollup/plugin-node-resolve
+    构建期 devDependency；MIT（Rollup 贡献者）
+  - ws
+    开发期 CDP 客户端依赖；MIT（websockets/ws contributors）
+
+Host-provided DSH packages: @deepseek-ai/dsh-base、@deepseek-ai/dsh-web-app、
+@deepseek-ai/dsh-client-* 等由 DSH CLI/profile 宿主提供，不随本仓库 vendoring，
+也不由本项目重新授权。使用者应按 DSH 发行包中的许可证与版权文件处理。
+
+Upstream-derived code: packages/* 下的插件源码衍生自 Fairy-DSH（Apache-2.0，
+Copyright 2026 Chengzhibense）。上游版权声明与修改说明见本文件开头的
+"Derived portions" 与 "Modifications" 两段；上游许可证全文见 LICENSE。
+
+发布新版本时应从最终 lockfile 重新核对版本、来源和许可证，把新增的第三方依赖
+补入上面的清单；不能因为依赖被锁定就把它们当作本项目原创内容。
+
+--------------------------------------------------------------------------
+Trademarks and third-party content
+--------------------------------------------------------------------------
+
+Fairy-DSH is an independent community project. Fairy, DSH, DeepSeek, Zenless
+Zone Zero, and related names, characters, logos, and marks belong to their
+respective rights holders and are not granted under the Apache-2.0 license for
+this repository.
+
+The repository does not distribute game scripts, official images or audio,
+private WORLD CORE data, personal corpora, sessions, credentials, or other user
+data. References to third-party names are descriptive only and do not imply
+sponsorship, endorsement, or affiliation.
+
+--------------------------------------------------------------------------
 Original Fairy-DSH NOTICE
 --------------------------------------------------------------------------
 
@@ -159,3 +201,12 @@ Fairy, DSH, DeepSeek, Zenless Zone Zero, and related names or marks are not
 licensed by this NOTICE. See TRADEMARKS.md. Game text, official assets,
 private world data, user data, and personal corpora are intentionally not
 distributed by this repository.
+
+--------------------------------------------------------------------------
+Note on file names
+--------------------------------------------------------------------------
+
+The reproduced upstream NOTICE above refers to THIRD_PARTY_NOTICES.md and
+TRADEMARKS.md. Those two files have been merged into this NOTICE (the two
+sections above); the upstream references are kept verbatim, but the separate
+files no longer exist in this repository.

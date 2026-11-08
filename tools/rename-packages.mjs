@@ -38,7 +38,7 @@ const SKIP_DIR = new Set([
 const TEXT_EXT = /\.(m?js|cjs|json|yml|yaml|md|ts|html)$/
 
 /** Files scanned for specifier rewrites (relative to the repo root). */
-const ROOTS = ['packages', 'tools', 'docs', 'dev/profile/package.json', 'README.md', 'NOTICE', 'THIRD_PARTY_NOTICES.md']
+const ROOTS = ['packages', 'tools', 'docs', 'dev/profile/package.json', 'README.md', 'NOTICE']
 
 const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
