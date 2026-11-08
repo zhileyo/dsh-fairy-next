@@ -12,7 +12,7 @@
   "scripts": {
     "build": "node tools/build-all.mjs",
     "verify": "node tools/verify-build.mjs",
-    "pack": "node tools/pack-all.mjs",
+    "pack:all": "node tools/pack-all.mjs",
     "probe:setup": "node tools/dev-setup.mjs",
     "probe:web": "pwsh -File tools/dev-start.ps1"
   },

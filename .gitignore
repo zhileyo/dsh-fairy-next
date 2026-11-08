@@ -5,3 +5,5 @@ node_modules/
 lib/*.tmp.js
 .dsh-market-home/
 .agents/
+# 打包产物：pnpm pack 在根目录打出来的整仓 tarball 也不该入库
+*.tgz

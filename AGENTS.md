@@ -27,7 +27,7 @@
 | `pnpm install` | 装根工具链与七个 workspace 包 |
 | `pnpm build` / `node tools/build-all.mjs` | 重建**有 `src/client`** 的包的 `lib/client.js`；其余保留上游预构建产物 |
 | `pnpm verify` / `node tools/verify-build.mjs` | 校验客户端 bundle 的四条不变量（见下） |
-| `pnpm pack` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，校验 `files`/`main`/`exports` 一致与内部版本范围；`--install-test` 再装进临时目录核一遍（要联网） |
+| `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，校验 `files`/`main`/`exports` 一致与内部版本范围；`--install-test` 再装进临时目录核一遍（要联网）。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
 | `node tools/build-client.mjs packages/<pkg>` | 只重建一个包 |
 | `node tools/dev-setup.mjs` | 准备隔离实例：`.dsh-dev-home/` + `profiles/fairy-dev` junction → `dev/profile` |
 | `pwsh -File tools/dev-start.ps1 -Port 3400` | 起隔离实例并打印带 token 的 URL；`-WithChrome` 同时起 CDP 9222，`-WithBalance` 允许余额卡读真实凭据 |

@@ -219,11 +219,12 @@ voice → browser-dock → 锚包；registry 上已存在的 `name@version` 会�
   `micromark-extension-gfm`——缺了它的**宿主半边**会 import 失败，表现为启动日志一行
   `warning: 1 entry did not activate`，其余插件与整页仍正常（0.2.1 对宿主侧失败是告警，
   客户端侧失败才会驻留启动页）。
-- 只想在本地看产物：`node tools/pack-all.mjs`（= `pnpm pack`）。它按依赖顺序把七个包打到
-  `.dsh-market-home/pkgs`，并校验三件只有打出来才看得见的事——`files` 里写的条目真的在包里、
-  `main`/`exports` 指向的文件也在包里、锚包声明的范围覆盖得住这一批的版本；加 `--install-test`
-  会把这批 tarball 再真装进临时目录核一遍（这一步要联网，`dsh-fairy-next-voice` 有三个 mdast
-  依赖得从 registry 解析）。
+- 只想在本地看产物：`node tools/pack-all.mjs`（或 `pnpm run pack:all`；别用 `pnpm pack`，
+  那是 pnpm 自带的“把当前目录打成包”，会把整个 workspace 打成 `dsh-fairy-next-workspace-0.0.0.tgz`）。
+  它按依赖顺序把七个包打到 `.dsh-market-home/pkgs`，并校验三件只有打出来才看得见的事——`files`
+  里写的条目真的在包里、`main`/`exports` 指向的文件也在包里、锚包声明的范围覆盖得住这一批的
+  版本；加 `--install-test` 会把这批 tarball 再真装进临时目录核一遍（这一步要联网，
+  `dsh-fairy-next-voice` 有三个 mdast 依赖得从 registry 解析）。
 
 ## 仓库与镜像
 
