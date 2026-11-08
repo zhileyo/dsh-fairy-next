@@ -36,8 +36,9 @@ node ../../tools/build-client.mjs .    # or pnpm build from the repository root
 node ../../tools/verify-build.mjs      # module id, wrapper shape, no relative require
 ```
 
-Shipped files are `lib`, `src` and `assets`; the persona corpus under
-`assets/persona/` is data, not code, and is copied verbatim.
+Shipped files are `lib` and `assets`; the persona corpus under
+`assets/persona/` is data, not code, and is copied verbatim. The client sources
+under `src/client/` stay in the repository — the runtime only loads the bundle.
 
 Client code cannot touch node built-ins, and `verify-build.mjs` rejects a
 relative `require()` outright — the bundle only sees platform modules plus what
