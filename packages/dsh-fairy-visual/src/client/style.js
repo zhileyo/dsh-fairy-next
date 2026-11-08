@@ -466,7 +466,7 @@ html[data-dsh-fairy-visual][data-dsh-fairy-theme="light"] .dsh-fairy-hint button
   // by 11px because an inline width:100% ignored the 13px body padding), and the
   // voice panel is rendered into our host by another plugin, so it only gets a
   // max-width guarantee from us.
-  appendSection('settings-hub', `.dsh-fairy-tts-engine{display:grid;gap:10px}
+  appendSection('settings-hub', `.dsh-fairy-speech-engine{display:grid;gap:10px}
 .dsh-fairy-hub textarea{min-height:120px;max-width:100%}
 .dsh-fairy-voice-host{display:block;min-width:0}
 .dsh-fairy-voice-host>*{max-width:100%;box-sizing:border-box}

@@ -93,7 +93,7 @@ function requireClient () {
 	const DEFAULT_WIDTH = 240;
 	const DEFAULT_ASPECT_RATIO = 16 / 9;
 	const DEFAULT_HEIGHT = DEFAULT_WIDTH / DEFAULT_ASPECT_RATIO;
-	const STYLE_ID = 'dsh-browser-dock-style';
+	const STYLE_ID = 'dsh-fairy-dock-style';
 
 	function control(token, action, value = {}) {
 	  const startedAt = diagnostics.start();
@@ -117,22 +117,22 @@ function requireClient () {
 	  style.id = STYLE_ID;
 	  style.setAttribute('data-plugin', 'dsh-fairy-dock');
 	  style.textContent = `
-    .dsh-browser-dock{position:fixed;top:64px;right:18px;width:min(240px,calc(100vw - 36px));height:min(180px,calc(100vh - 96px));min-width:${MIN_WIDTH}px;min-height:${MIN_HEIGHT}px;max-width:calc(100vw - 36px);max-height:calc(100vh - 82px);z-index:76;display:flex;flex-direction:column;overflow:hidden;resize:none;border:1px solid var(--dsw-alias-border-l2,rgba(120,130,145,.28));border-radius:14px;background:#fff;color:#17202b;box-shadow:0 18px 48px rgba(15,23,42,.22),0 3px 12px rgba(15,23,42,.12);font:12px/1.35 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;isolation:isolate}
-    .dsh-browser-dock::before{content:"";position:absolute;z-index:2;inset:0 0 auto;height:32px;background:linear-gradient(180deg,rgba(68,76,86,.13) 0%,rgba(68,76,86,.035) 58%,rgba(68,76,86,0) 100%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);-webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.82) 42%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.82) 42%,transparent 100%);pointer-events:none}
-    .dsh-browser-dock[data-frame-ready="false"]{visibility:hidden}
-    .dsh-browser-dock[data-minimized="true"]{width:240px!important;height:42px!important;min-height:42px;resize:none}
-    .dsh-browser-dock__chrome{position:absolute;z-index:4;inset:3px 3px auto 3px;display:flex;align-items:center;gap:7px;pointer-events:none;user-select:none}
-    .dsh-browser-dock[data-minimized="true"] .dsh-browser-dock__chrome{inset:3px}
-    .dsh-browser-dock__identity{min-width:0;flex:1;display:flex;align-items:center;height:27px;padding:0 3px 0 9px;pointer-events:auto;filter:drop-shadow(0 1px 1px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(15,23,42,.3))}
-    .dsh-browser-dock__title{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:650;font-size:12px}
-    .dsh-browser-dock__actions{display:flex;gap:2px;pointer-events:auto;filter:drop-shadow(0 1px 1px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(15,23,42,.3))}.dsh-browser-dock__button{width:27px;height:27px;padding:0;border:0;border-radius:7px;background:transparent;color:inherit;cursor:pointer;font-size:14px;display:grid;place-items:center}.dsh-browser-dock__button:hover{background:color-mix(in srgb,var(--dsw-alias-bg-layer-1,#fff) 55%,transparent)}.dsh-browser-dock__button[aria-pressed="true"]{color:#2563eb}
-    .dsh-browser-dock__tabs{position:absolute;z-index:3;top:38px;left:7px;right:7px;height:24px;display:flex;gap:4px;padding:2px;overflow-x:auto;box-sizing:border-box;filter:drop-shadow(0 1px 1px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(15,23,42,.3))}.dsh-browser-dock__tab{max-width:150px;min-width:56px;padding:2px 7px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#52606d}.dsh-browser-dock__tab[data-current="true"]{color:#17202b;font-weight:600}
-    .dsh-browser-dock__viewport{position:relative;min-height:0;flex:1;background:#f2f3f5;display:grid;place-items:center;overflow:hidden}.dsh-browser-dock__frame{width:100%;height:100%;object-fit:cover;display:block}
-    .dsh-browser-dock__handoff{position:absolute;right:10px;bottom:10px;padding:7px 10px;border:1px solid rgba(59,130,246,.35);border-radius:8px;background:rgba(255,255,255,.94);color:#1d4ed8;box-shadow:0 3px 12px rgba(15,23,42,.14);cursor:pointer;font-weight:650}.dsh-browser-dock__handoff:disabled{opacity:.55;cursor:default}
-    .dsh-browser-dock__resize{position:absolute;z-index:5;left:0;bottom:0;width:20px;height:20px;cursor:sw-resize;touch-action:none;user-select:none;border:0;background:transparent;border-bottom-left-radius:13px}
-    .dsh-browser-dock__resize::before{content:"";position:absolute;left:3px;bottom:3px;width:10px;height:10px;background:linear-gradient(45deg,transparent 0 39%,var(--dsw-alias-border-l1,rgba(82,96,112,.52)) 40% 48%,transparent 49% 66%,var(--dsw-alias-border-l1,rgba(82,96,112,.52)) 67% 75%,transparent 76%);pointer-events:none}
-    .dsh-browser-dock__resize:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#3b82f6);outline-offset:-3px}
-    @media(max-width:700px){.dsh-browser-dock{top:58px;right:10px;max-width:calc(100vw - 20px);min-width:${MIN_WIDTH}px}}
+    .dsh-fairy-dock{position:fixed;top:64px;right:18px;width:min(240px,calc(100vw - 36px));height:min(180px,calc(100vh - 96px));min-width:${MIN_WIDTH}px;min-height:${MIN_HEIGHT}px;max-width:calc(100vw - 36px);max-height:calc(100vh - 82px);z-index:76;display:flex;flex-direction:column;overflow:hidden;resize:none;border:1px solid var(--dsw-alias-border-l2,rgba(120,130,145,.28));border-radius:14px;background:#fff;color:#17202b;box-shadow:0 18px 48px rgba(15,23,42,.22),0 3px 12px rgba(15,23,42,.12);font:12px/1.35 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;isolation:isolate}
+    .dsh-fairy-dock::before{content:"";position:absolute;z-index:2;inset:0 0 auto;height:32px;background:linear-gradient(180deg,rgba(68,76,86,.13) 0%,rgba(68,76,86,.035) 58%,rgba(68,76,86,0) 100%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);-webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.82) 42%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.82) 42%,transparent 100%);pointer-events:none}
+    .dsh-fairy-dock[data-frame-ready="false"]{visibility:hidden}
+    .dsh-fairy-dock[data-minimized="true"]{width:240px!important;height:42px!important;min-height:42px;resize:none}
+    .dsh-fairy-dock__chrome{position:absolute;z-index:4;inset:3px 3px auto 3px;display:flex;align-items:center;gap:7px;pointer-events:none;user-select:none}
+    .dsh-fairy-dock[data-minimized="true"] .dsh-fairy-dock__chrome{inset:3px}
+    .dsh-fairy-dock__identity{min-width:0;flex:1;display:flex;align-items:center;height:27px;padding:0 3px 0 9px;pointer-events:auto;filter:drop-shadow(0 1px 1px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(15,23,42,.3))}
+    .dsh-fairy-dock__title{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:650;font-size:12px}
+    .dsh-fairy-dock__actions{display:flex;gap:2px;pointer-events:auto;filter:drop-shadow(0 1px 1px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(15,23,42,.3))}.dsh-fairy-dock__button{width:27px;height:27px;padding:0;border:0;border-radius:7px;background:transparent;color:inherit;cursor:pointer;font-size:14px;display:grid;place-items:center}.dsh-fairy-dock__button:hover{background:color-mix(in srgb,var(--dsw-alias-bg-layer-1,#fff) 55%,transparent)}.dsh-fairy-dock__button[aria-pressed="true"]{color:#2563eb}
+    .dsh-fairy-dock__tabs{position:absolute;z-index:3;top:38px;left:7px;right:7px;height:24px;display:flex;gap:4px;padding:2px;overflow-x:auto;box-sizing:border-box;filter:drop-shadow(0 1px 1px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(15,23,42,.3))}.dsh-fairy-dock__tab{max-width:150px;min-width:56px;padding:2px 7px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#52606d}.dsh-fairy-dock__tab[data-current="true"]{color:#17202b;font-weight:600}
+    .dsh-fairy-dock__viewport{position:relative;min-height:0;flex:1;background:#f2f3f5;display:grid;place-items:center;overflow:hidden}.dsh-fairy-dock__frame{width:100%;height:100%;object-fit:cover;display:block}
+    .dsh-fairy-dock__handoff{position:absolute;right:10px;bottom:10px;padding:7px 10px;border:1px solid rgba(59,130,246,.35);border-radius:8px;background:rgba(255,255,255,.94);color:#1d4ed8;box-shadow:0 3px 12px rgba(15,23,42,.14);cursor:pointer;font-weight:650}.dsh-fairy-dock__handoff:disabled{opacity:.55;cursor:default}
+    .dsh-fairy-dock__resize{position:absolute;z-index:5;left:0;bottom:0;width:20px;height:20px;cursor:sw-resize;touch-action:none;user-select:none;border:0;background:transparent;border-bottom-left-radius:13px}
+    .dsh-fairy-dock__resize::before{content:"";position:absolute;left:3px;bottom:3px;width:10px;height:10px;background:linear-gradient(45deg,transparent 0 39%,var(--dsw-alias-border-l1,rgba(82,96,112,.52)) 40% 48%,transparent 49% 66%,var(--dsw-alias-border-l1,rgba(82,96,112,.52)) 67% 75%,transparent 76%);pointer-events:none}
+    .dsh-fairy-dock__resize:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#3b82f6);outline-offset:-3px}
+    @media(max-width:700px){.dsh-fairy-dock{top:58px;right:10px;max-width:calc(100vw - 20px);min-width:${MIN_WIDTH}px}}
   `;
 	  document.head.appendChild(style);
 	  return () => style.remove();
@@ -145,7 +145,7 @@ function requireClient () {
 	function createBottomLeftResize(event, setSize, aspectRatio) {
 	  if (event.button !== 0) return () => {};
 	  const handle = event.currentTarget;
-	  const dock = handle.closest('.dsh-browser-dock');
+	  const dock = handle.closest('.dsh-fairy-dock');
 	  if (!dock) return () => {};
 	  event.preventDefault();
 	  const pointerId = event.pointerId;
@@ -385,22 +385,22 @@ function requireClient () {
 	    'aria-label': `浏览器预览：${title}，${statusText}`,
 	    style: minimized ? undefined : { width: size.width, height: size.height },
 	    children: [
-	      jsxs('header', { className: 'dsh-browser-dock__chrome', children: [
-	        jsxs('span', { className: 'dsh-browser-dock__identity', children: [
-	          jsx('span', { className: 'dsh-browser-dock__title', title, children: title }),
+	      jsxs('header', { className: 'dsh-fairy-dock__chrome', children: [
+	        jsxs('span', { className: 'dsh-fairy-dock__identity', children: [
+	          jsx('span', { className: 'dsh-fairy-dock__title', title, children: title }),
 	        ] }),
-	        jsxs('span', { className: 'dsh-browser-dock__actions', children: [
-	          jsx('button', { type: 'button', className: 'dsh-browser-dock__button', title: pinned ? '取消固定' : '固定当前大小和折叠状态', 'aria-label': pinned ? '取消固定浏览器 Dock' : '固定浏览器 Dock', 'aria-pressed': pinned, onClick: () => setPinned((value) => !value), children: '⌖' }),
-	          jsx('button', { type: 'button', className: 'dsh-browser-dock__button', title: minimized ? '展开' : '最小化', 'aria-label': minimized ? '展开浏览器 Dock' : '最小化浏览器 Dock', onClick: () => setMinimized((value) => !value), children: minimized ? '□' : '—' }),
-	          jsx('button', { type: 'button', className: 'dsh-browser-dock__button', title: '关闭浏览器', 'aria-label': '关闭浏览器 Dock 和浏览器', onClick: close, children: '×' }),
+	        jsxs('span', { className: 'dsh-fairy-dock__actions', children: [
+	          jsx('button', { type: 'button', className: 'dsh-fairy-dock__button', title: pinned ? '取消固定' : '固定当前大小和折叠状态', 'aria-label': pinned ? '取消固定浏览器 Dock' : '固定浏览器 Dock', 'aria-pressed': pinned, onClick: () => setPinned((value) => !value), children: '⌖' }),
+	          jsx('button', { type: 'button', className: 'dsh-fairy-dock__button', title: minimized ? '展开' : '最小化', 'aria-label': minimized ? '展开浏览器 Dock' : '最小化浏览器 Dock', onClick: () => setMinimized((value) => !value), children: minimized ? '□' : '—' }),
+	          jsx('button', { type: 'button', className: 'dsh-fairy-dock__button', title: '关闭浏览器', 'aria-label': '关闭浏览器 Dock 和浏览器', onClick: close, children: '×' }),
 	        ] }),
 	      ] }),
-	      !minimized && tabs.length > 1 ? jsx('nav', { className: 'dsh-browser-dock__tabs', 'aria-label': '浏览器标签页', children: tabs.map((tab) => jsx('span', { className: 'dsh-browser-dock__tab', 'data-current': tab.current ? 'true' : 'false', title: tab.title || '未命名', children: tab.title || `标签 ${tab.index + 1}` }, tab.index)) }) : null,
-	      !minimized ? jsxs('div', { className: 'dsh-browser-dock__viewport', children: [
-	        state.frameRevision ? jsx('img', { className: 'dsh-browser-dock__frame', src: `/browser-dock/frame?revision=${state.frameRevision}`, alt: `当前页面画面：${title}`, onLoad: fitFrameRatio }) : null,
-	        state.takeoverAvailable && !state.takeoverConsumed ? jsx('button', { type: 'button', className: 'dsh-browser-dock__handoff', disabled: handoffPending, onClick: () => void takeover(), children: handoffPending ? '正在移交…' : '在外部浏览器接管一次' }) : null,
+	      !minimized && tabs.length > 1 ? jsx('nav', { className: 'dsh-fairy-dock__tabs', 'aria-label': '浏览器标签页', children: tabs.map((tab) => jsx('span', { className: 'dsh-fairy-dock__tab', 'data-current': tab.current ? 'true' : 'false', title: tab.title || '未命名', children: tab.title || `标签 ${tab.index + 1}` }, tab.index)) }) : null,
+	      !minimized ? jsxs('div', { className: 'dsh-fairy-dock__viewport', children: [
+	        state.frameRevision ? jsx('img', { className: 'dsh-fairy-dock__frame', src: `/browser-dock/frame?revision=${state.frameRevision}`, alt: `当前页面画面：${title}`, onLoad: fitFrameRatio }) : null,
+	        state.takeoverAvailable && !state.takeoverConsumed ? jsx('button', { type: 'button', className: 'dsh-fairy-dock__handoff', disabled: handoffPending, onClick: () => void takeover(), children: handoffPending ? '正在移交…' : '在外部浏览器接管一次' }) : null,
 	      ] }) : null,
-	      !minimized ? jsx('div', { className: 'dsh-browser-dock__resize', role: 'separator', tabIndex: 0, 'aria-label': '从左下角调整浏览器 Dock 大小', 'aria-orientation': 'vertical', onPointerDown: beginResize, onKeyDown: resizeWithKeyboard }) : null,
+	      !minimized ? jsx('div', { className: 'dsh-fairy-dock__resize', role: 'separator', tabIndex: 0, 'aria-label': '从左下角调整浏览器 Dock 大小', 'aria-orientation': 'vertical', onPointerDown: beginResize, onKeyDown: resizeWithKeyboard }) : null,
 	    ],
 	  });
 	}
@@ -409,7 +409,7 @@ function requireClient () {
 
 	function apply(ctx) {
 	  return diagnostics.guard('apply', () => {
-	    ctx.effect(() => injectStyle(), 'dsh-browser-dock style lifecycle');
+	    ctx.effect(() => injectStyle(), 'dsh-fairy-dock style lifecycle');
 	    ctx.slots.inject('shell.overlay', () => ctx.slots.register({
 	      name: 'shell.overlay', id: 'dsh-fairy-dock', order: 90,
 	    }, () => jsx(BrowserDock, { sessions: ctx.sessions })));

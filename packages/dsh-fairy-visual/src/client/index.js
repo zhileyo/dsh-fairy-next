@@ -1260,11 +1260,11 @@ const diagnostics = createFairyDiagnostics('dsh-fairy-visual');
             className: 'dsh-fairy-rows dsh-fairy-rows--padded',
             children: [
               draft.protocol === 'yovoice'
-                ? jsxs('div', { className: 'dsh-fairy-tts-engine', children: [
-                    jsx(Field, { label: '模型', children: jsx('input', { type: 'text', list: 'dsh-fairy-tts-models', value: draft.modelId, placeholder: '例如 index-2.5-f16（留空用引擎默认）', onChange: (event) => setDraft({ ...draft, modelId: event.target.value }) }) }),
-                    jsx('datalist', { id: 'dsh-fairy-tts-models', children: (engine?.models || []).map((model) => jsx('option', { value: model.id })) }),
-                    jsx(Field, { label: '音色', children: jsx('input', { type: 'text', list: 'dsh-fairy-tts-voices', value: draft.voiceId, placeholder: '引擎里导入的音色 id（留空用默认音色）', onChange: (event) => setDraft({ ...draft, voiceId: event.target.value }) }) }),
-                    jsx('datalist', { id: 'dsh-fairy-tts-voices', children: (engine?.voices || []).map((voice) => jsx('option', { value: voice.id, label: voice.name })) }),
+                ? jsxs('div', { className: 'dsh-fairy-speech-engine', children: [
+                    jsx(Field, { label: '模型', children: jsx('input', { type: 'text', list: 'dsh-fairy-speech-models', value: draft.modelId, placeholder: '例如 index-2.5-f16（留空用引擎默认）', onChange: (event) => setDraft({ ...draft, modelId: event.target.value }) }) }),
+                    jsx('datalist', { id: 'dsh-fairy-speech-models', children: (engine?.models || []).map((model) => jsx('option', { value: model.id })) }),
+                    jsx(Field, { label: '音色', children: jsx('input', { type: 'text', list: 'dsh-fairy-speech-voices', value: draft.voiceId, placeholder: '引擎里导入的音色 id（留空用默认音色）', onChange: (event) => setDraft({ ...draft, voiceId: event.target.value }) }) }),
+                    jsx('datalist', { id: 'dsh-fairy-speech-voices', children: (engine?.voices || []).map((voice) => jsx('option', { value: voice.id, label: voice.name })) }),
                     jsxs('div', { className: 'dsh-fairy-hint', children: [
                       '音色来自引擎里已导入的参考音频；',
                       jsx('button', { type: 'button', onClick: loadEngine, disabled: state === 'loading-engine', children: state === 'loading-engine' ? '读取中…' : '读取引擎模型/音色' }),

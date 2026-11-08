@@ -125,7 +125,7 @@ export function apply(ctx) {
       disableWatcher(error);
     }
     return () => disableWatcher();
-  }, 'dsh-browser-dock state watcher');
+  }, 'dsh-fairy-dock state watcher');
 
   ctx.effect(() => () => {
     try {
@@ -141,7 +141,7 @@ export function apply(ctx) {
       }
     }
     appliedContexts.delete(ctx);
-  }, 'dsh-browser-dock lifecycle');
+  }, 'dsh-fairy-dock lifecycle');
 
   ctx.inject(['webServer'], (scope) => {
     scope.effect(() => scope.webServer.register({

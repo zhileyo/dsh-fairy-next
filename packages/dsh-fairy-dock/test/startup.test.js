@@ -25,7 +25,7 @@ async function waitFor(check, message, timeoutMs = 4000) {
 }
 
 test('publishes the dock only after the first presentable frame is complete', async (t) => {
-  const dshHome = await mkdtemp(join(tmpdir(), 'dsh-browser-dock-startup-'));
+  const dshHome = await mkdtemp(join(tmpdir(), 'dsh-fairy-dock-startup-'));
   const playwright = join(dshHome, 'profiles', 'web', 'node_modules', '.bin', 'playwright-mcp');
   const stateFile = join(dshHome, 'browser-dock', 'state.json');
   await mkdir(dirname(playwright), { recursive: true });

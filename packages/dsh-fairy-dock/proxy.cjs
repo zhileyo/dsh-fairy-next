@@ -44,7 +44,7 @@ let captureRunning = false;
 let captureHint = '';
 let closed = false;
 let commandSignature = '';
-const internalIdPrefix = `dsh-browser-dock:${process.pid}:`;
+const internalIdPrefix = `dsh-fairy-dock:${process.pid}:`;
 const clientCalls = new Map();
 const internalCalls = new Map();
 

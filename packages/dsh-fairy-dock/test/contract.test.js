@@ -105,25 +105,25 @@ test('owns dock controls, session cleanup, and one-shot takeover', () => {
 });
 
 test('renders title and controls over the page without a URL header row', () => {
-  assert.match(client, /dsh-browser-dock__chrome\{position:absolute/);
+  assert.match(client, /dsh-fairy-dock__chrome\{position:absolute/);
   assert.match(client, /inset:3px 3px auto 3px/);
-  assert.match(client, /className: 'dsh-browser-dock__title'/);
+  assert.match(client, /className: 'dsh-fairy-dock__title'/);
   assert.match(client, /padding:0 3px 0 9px/);
-  assert.doesNotMatch(client, /dsh-browser-dock__bar/);
-  assert.doesNotMatch(client, /dsh-browser-dock__url/);
-  assert.doesNotMatch(client, /dsh-browser-dock__status/);
+  assert.doesNotMatch(client, /dsh-fairy-dock__bar/);
+  assert.doesNotMatch(client, /dsh-fairy-dock__url/);
+  assert.doesNotMatch(client, /dsh-fairy-dock__status/);
   assert.doesNotMatch(client, /浏览器正在工作/);
   assert.doesNotMatch(client, /无法更新页面画面|state\.error/);
   assert.match(client, /!state\.frameRevision \|\| !title/);
   assert.doesNotMatch(client, /state\.url/);
   assert.doesNotMatch(client, /tab\.url/);
   assert.match(client, /object-fit:cover/);
-  assert.doesNotMatch(client, /dsh-browser-dock__identity\{[^}]*backdrop-filter/);
-  assert.doesNotMatch(client, /dsh-browser-dock__actions\{[^}]*backdrop-filter/);
-  assert.match(client, /dsh-browser-dock::before\{[^}]*height:32px[^}]*linear-gradient/);
-  assert.match(client, /dsh-browser-dock::before\{[^}]*backdrop-filter:blur\(2px\)/);
-  assert.match(client, /dsh-browser-dock::before\{[^}]*mask-image:linear-gradient/);
-  assert.match(client, /dsh-browser-dock::before\{[^}]*pointer-events:none/);
+  assert.doesNotMatch(client, /dsh-fairy-dock__identity\{[^}]*backdrop-filter/);
+  assert.doesNotMatch(client, /dsh-fairy-dock__actions\{[^}]*backdrop-filter/);
+  assert.match(client, /dsh-fairy-dock::before\{[^}]*height:32px[^}]*linear-gradient/);
+  assert.match(client, /dsh-fairy-dock::before\{[^}]*backdrop-filter:blur\(2px\)/);
+  assert.match(client, /dsh-fairy-dock::before\{[^}]*mask-image:linear-gradient/);
+  assert.match(client, /dsh-fairy-dock::before\{[^}]*pointer-events:none/);
   assert.match(client, /data-frame-ready/);
   assert.match(client, /loadedRevision !== state\.frameRevision/);
   assert.match(client, /setPresentedFrameRevision\(loadedRevision\)/);

@@ -45,9 +45,9 @@ with other tools.
 renders the frame through an `<img>` pointed at `/browser-dock/frame`, fits the
 aspect ratio on load, and re-requests when the revision changes.
 
-`lib/index.iife.js` is the upstream prebuilt bundle shipped as-is; this
-repository builds `lib/client.js` from `src/client/` and the runtime loads that
-one.
+The upstream reference also ships a prebuilt `lib/index.iife.js`; it is not
+included here, because the runtime loads the bundle this repository builds from
+`src/client/`.
 
 ```sh
 node --check lib/index.js

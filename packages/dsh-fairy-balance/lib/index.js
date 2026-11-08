@@ -219,7 +219,7 @@ export function apply(ctx) {
   ctx.effect(() => () => {
     disposeBalanceRequests();
     appliedContexts.delete(ctx);
-  }, 'dsh-balance-meter request lifecycle');
+  }, 'dsh-fairy-balance request lifecycle');
 
   ctx.on('session/event', (_session, event) => {
     if (event?.type !== 'assistant/message' || !event.data?.usage) return;

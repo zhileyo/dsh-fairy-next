@@ -210,7 +210,7 @@ gh workflow run publish-npm --repo zhileyo/dsh-fairy-next -f dry_run=false   # �
 哪些文件）→ `pin-versions.mjs` → `build-all` → `verify-build` → `pack-all.mjs`（打出七个 tarball
 和 `pack-manifest.json`）→ `publish-npm.mjs --dry-run` 或 `publish-npm.mjs`。发的是**这一步打出来
 的 tarball**，不是包目录：本地验过的字节就是 registry 收到的字节。顺序是 contracts → visual →
-startup → balance → voice → browser-dock → 锚包（依赖在前）；registry 上已存在的 `name@version`
+startup → balance → speech → dock → 锚包（依赖在前）；registry 上已存在的 `name@version`
 直接跳过，所以重复触发是安全的。
 
 ```powershell
