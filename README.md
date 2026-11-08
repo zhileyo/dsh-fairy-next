@@ -213,7 +213,7 @@ node tools/pack-all.mjs --install-test           # 本地：打包 + 装一遍�
 node tools/publish-npm.mjs --dry-run             # 本地：走完检查，不上传
 ```
 
-发布凭据走 **OIDC（Trusted Publisher）**，仓库里不存任何 npm token：
+稳态的发布凭据是 **OIDC（Trusted Publisher）**，仓库里不需要长期 token：
 
 ```powershell
 npm login --auth-type=web                 # 配关系要 npm 账号的写权限
@@ -230,8 +230,18 @@ node tools/trust-publisher.mjs --check    # 复查（只读）
 换不到 OIDC 令牌。也别给 `setup-node` 设 `registry-url`：那会写一行
 `_authToken=${NODE_AUTH_TOKEN}` 到 `.npmrc`，而 OIDC 这条路上那个变量必须为空。
 
-（想临时绕开 OIDC 也能用长期 token：仓库 Secret `NPM_TOKEN` + 工作流里加回
-`NODE_AUTH_TOKEN`。代价是又多一件要轮换的凭据。）
+**首版得用 token 引导一次，这不是可选项**：Trusted Publisher 只能挂在已经存在的包上，
+而账号开了 2FA（`auth-and-writes`）时 `npm trust` 的创建路径不送 OTP，
+`npm trust github` 与 `npm trust list` 都直接 `E403`。所以顺序是：
+
+1. npm 网页上建一个 granular token（Packages 读写、允许绕过 2FA、有效期压到几天），
+   `gh secret set NPM_TOKEN --repo zhileyo/dsh-fairy-next`；
+2. 手动跑工作流，`dry_run=false` + `bootstrap_token=true` —— 这一步会把 token 写进
+   runner 的 `.npmrc` 再把七个 `0.1.0` 发出去；
+3. 包存在之后，在 npm 网页给七个包各建一条 Trusted Publisher
+   （GitHub Actions / `zhileyo/dsh-fairy-next` / `publish-npm.yml` / 允许 `npm publish`）；
+4. 删掉 secret 与工作流里那个 `authenticate with the bootstrap token` 步骤，
+   把 `bootstrap_token` 输入一并去掉。之后打 `v*` tag 就只走 OIDC。
 
 打包前提：
 

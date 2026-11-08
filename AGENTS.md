@@ -68,10 +68,14 @@
    否则锚包的依赖范围与发出的版本脱节、装上后会解析到旧包。发布走
    `.github/workflows/publish-npm.yml`（打 `v*` tag 或手动触发，默认 dry-run），发的是
    `pack-all` 打出来的 tarball，不要改回按目录 publish。
-   **发布凭据是 OIDC，不是 token**：七个包各自的 Trusted Publisher 用
+   **稳态的发布凭据是 OIDC，不是 token**：七个包各自的 Trusted Publisher 用
    `node tools/trust-publisher.mjs` 登记；工作流保持 `id-token: write`、不要加回
    `NODE_AUTH_TOKEN`（它会让 npm 放弃 OIDC）、也不要给 `setup-node` 设 `registry-url`。
    npm 版本必须 ≥ 11.5.1（Node 24 自带 npm 11；Node 22 的 npm 10 换不到 OIDC 令牌）。
+   **唯一的例外是新包的首版**：Trusted Publisher 只能挂在已存在的包上，而账号开了 2FA 时
+   `npm trust` 的创建路径不送 OTP（`E403`），所以首版要用仓库 Secret `NPM_TOKEN` +
+   工作流输入 `bootstrap_token=true` 发一次。发完立刻删掉 secret、那个引导步骤和输入——
+   留着它等于把 OIDC 换成长期 token。
 5. **搞清楚 `lib/client.js` 是产物还是源码。** `visual`、`browser-dock` 有 `src/client/`：
    改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。`balance`、`startup`、
    `voice` **没有** `src/client/`：它们的 `lib/client.js` 就是源码（上游预构建后手工移植成
