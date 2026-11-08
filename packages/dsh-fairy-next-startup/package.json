@@ -1,6 +1,6 @@
 {
   "name": "dsh-fairy-next-startup",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Fairy startup: every new document lands on a fresh session instead of restoring the previous one.",
   "type": "module",
   "main": "./lib/index.js",

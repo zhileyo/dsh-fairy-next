@@ -27,7 +27,9 @@
 | `pnpm install` | 装根工具链与七个 workspace 包 |
 | `pnpm build` / `node tools/build-all.mjs` | 重建**有 `src/client`** 的包的 `lib/client.js`；其余保留上游预构建产物 |
 | `pnpm verify` / `node tools/verify-build.mjs` | 校验客户端 bundle 的四条不变量（见下） |
-| `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，校验 `files`/`main`/`exports` 一致与内部版本范围；`--install-test` 再装进临时目录核一遍（要联网）。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
+| `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，写出 `pack-manifest.json`，校验 `files`/`main`/`exports` 一致与内部版本范围；`--install-test` 再装进临时目录核一遍（要联网）。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
+| `node tools/publish-npm.mjs [--dry-run]` | 按 `pack-manifest.json` 逐条 `npm publish <tgz>`，跳过 registry 上已有的版本；发布只走它，不要按目录 publish |
+| `node tools/bump-version.mjs <x.y.z>` | 七包同一版本号：改七份 manifest 与锚包的 `^` 范围，之后 `pnpm install --lockfile-only` |
 | `node tools/build-client.mjs packages/<pkg>` | 只重建一个包 |
 | `node tools/dev-setup.mjs` | 准备隔离实例：`.dsh-dev-home/` + `profiles/fairy-dev` junction → `dev/profile` |
 | `pwsh -File tools/dev-start.ps1 -Port 3400` | 起隔离实例并打印带 token 的 URL；`-WithChrome` 同时起 CDP 9222，`-WithBalance` 允许余额卡读真实凭据 |
@@ -60,9 +62,11 @@
    GitHub 的流水线——那会和拉取形成回环。改动后要重新解析定时任务（只有 `.cnb.yml`
    变更的那次 push 才会刷新）。
 3. **只往 GitHub `origin` 推。** CNB 是只读镜像；`git push cnb` 只用于新仓库首次 bootstrap。
-4. **七个包一起发布，但版本各自独立。** 发布走 `.github/workflows/publish-npm.yml`（打 `v*` tag
-   或手动触发，默认 dry-run）。锚包声明的是 `^0.1.0` 这类范围，发新版本时锚包的依赖范围必须覆盖
-   得住实际发出的版本，否则装上后内部依赖会解析到旧包。
+4. **七个包同一个版本号、一起发布。** 改版本只走 `node tools/bump-version.mjs <x.y.z>`
+   （它改七份 manifest 与锚包的 `^` 范围），随后 `pnpm install --lockfile-only` 并一起提交，
+   否则锚包的依赖范围与发出的版本脱节、装上后会解析到旧包。发布走
+   `.github/workflows/publish-npm.yml`（打 `v*` tag 或手动触发，默认 dry-run），发的是
+   `pack-all` 打出来的 tarball，不要改回按目录 publish。
 5. **搞清楚 `lib/client.js` 是产物还是源码。** `visual`、`browser-dock` 有 `src/client/`：
    改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。`balance`、`startup`、
    `voice` **没有** `src/client/`：它们的 `lib/client.js` 就是源码（上游预构建后手工移植成

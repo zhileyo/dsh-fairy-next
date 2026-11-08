@@ -13,6 +13,8 @@
     "build": "node tools/build-all.mjs",
     "verify": "node tools/verify-build.mjs",
     "pack:all": "node tools/pack-all.mjs",
+    "version:bump": "node tools/bump-version.mjs",
+    "publish:npm": "node tools/publish-npm.mjs",
     "probe:setup": "node tools/dev-setup.mjs",
     "probe:web": "pwsh -File tools/dev-start.ps1"
   },

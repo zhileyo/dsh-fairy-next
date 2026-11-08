@@ -66,14 +66,16 @@
 | `dsh-fairy-next-browser-dock` | 浏览器 dock 与 `@playwright/mcp` 的 stdio 代理（`proxy.cjs`） | `src/client/` → rollup |
 | `dsh-fairy-next-contracts` | 跨包只读契约（命名空间、DOM 锚点、词汇表） | 纯 ESM，不打包 |
 
-七个包一起发布，但**版本各自独立**（锚包声明的是 `^0.1.0` 这类范围，所以发新版本时锚包的
-依赖范围要跟得上）。「有 `src/client/`」与「`lib/client.js` 就是源码」的区别决定了改动落在哪
-一层，`tools/build-all.mjs` 按目录是否存在来分流，细节见 [AGENTS.md](AGENTS.md)。
+七个包**同一个版本号、一起发布**：锚包声明的是 `^0.1.0` 这类范围，所以版本只能整批动
+（`node tools/bump-version.mjs <version>` 会改七份 manifest 和锚包的依赖范围，并提示
+regenerate lockfile）。「有 `src/client/`」与「`lib/client.js` 就是源码」的区别决定了改动落在
+哪一层，`tools/build-all.mjs` 按目录是否存在来分流，细节见 [AGENTS.md](AGENTS.md)。
 
 ```text
 tools/                         构建（build-all / build-client / verify-build）、打包
-                               （pack-all）、发布（pin-versions / prepare-publish）、开发实例
-                               （dev-setup / dev-start.ps1）、验收（cdp/*）、mock
+                               （pack-all）、发布（bump-version / pin-versions /
+                               prepare-publish / publish-npm，npm 调用统一走 npm-cli）、
+                               开发实例（dev-setup / dev-start.ps1）、验收（cdp/*）、mock
                                （mock-tts）、迁移脚本
 dev/profile/                   隔离开发实例用的 DSH profile（junction 进 .dsh-dev-home）
 docs/                          REPO / TTS / ADAPTATION / VERIFICATION
@@ -200,9 +202,16 @@ gh workflow run publish-npm --repo zhileyo/dsh-fairy-next -f dry_run=false   # �
 ```
 
 工作流顺序：`pnpm install --frozen-lockfile` → `prepare-publish.mjs --dry`（先审计每个包会发
-哪些文件）→ `pin-versions.mjs` → `build-all` → `verify-build` → 按依赖顺序逐个
-`npm publish --access public --provenance`。顺序是 contracts → visual → startup → balance →
-voice → browser-dock → 锚包；registry 上已存在的 `name@version` 会直接跳过，所以重复触发是安全的。
+哪些文件）→ `pin-versions.mjs` → `build-all` → `verify-build` → `pack-all.mjs`（打出七个 tarball
+和 `pack-manifest.json`）→ `publish-npm.mjs --dry-run` 或 `publish-npm.mjs`。发的是**这一步打出来
+的 tarball**，不是包目录：本地验过的字节就是 registry 收到的字节。顺序是 contracts → visual →
+startup → balance → voice → browser-dock → 锚包（依赖在前）；registry 上已存在的 `name@version`
+直接跳过，所以重复触发是安全的。
+
+```powershell
+node tools/pack-all.mjs --install-test           # 本地：打包 + 装一遍核验
+node tools/publish-npm.mjs --dry-run             # 本地：走完检查，不上传
+```
 
 凭据二选一：
 
@@ -212,19 +221,21 @@ voice → browser-dock → 锚包；registry 上已存在的 `name@version` 会�
 
 打包前提：
 
-- 七个包一起发，版本各自独立：当前 contracts / visual / browser-dock / 锚包是 `0.1.0`，
-  balance `0.2.0`，startup / voice `1.0.0`。锚包声明的范围必须覆盖得住这一批发出的版本，
-  否则装上后内部依赖会解析到旧包（原因见 [包与目录](#包与目录)）；
+- 七个包**同一个版本号**（当前全部 `0.1.0`），一起发。改版本只走
+  `node tools/bump-version.mjs <x.y.z>`：它同时改七份 manifest 与锚包的 `^` 范围，之后记得
+  `pnpm install --lockfile-only` 并把锁文件一起提交（importers 记的是依赖声明）。锚包声明的范围
+  必须覆盖得住这一批发出的版本，否则装上后内部依赖会解析到旧包（原因见
+  [包与目录](#包与目录)）；
 - `dsh-fairy-next-voice` 还要装 `mdast-util-from-markdown` / `mdast-util-gfm` /
   `micromark-extension-gfm`——缺了它的**宿主半边**会 import 失败，表现为启动日志一行
   `warning: 1 entry did not activate`，其余插件与整页仍正常（0.2.1 对宿主侧失败是告警，
   客户端侧失败才会驻留启动页）。
-- 只想在本地看产物：`node tools/pack-all.mjs`（或 `pnpm run pack:all`；别用 `pnpm pack`，
-  那是 pnpm 自带的“把当前目录打成包”，会把整个 workspace 打成 `dsh-fairy-next-workspace-0.0.0.tgz`）。
-  它按依赖顺序把七个包打到 `.dsh-market-home/pkgs`，并校验三件只有打出来才看得见的事——`files`
-  里写的条目真的在包里、`main`/`exports` 指向的文件也在包里、锚包声明的范围覆盖得住这一批的
-  版本；加 `--install-test` 会把这批 tarball 再真装进临时目录核一遍（这一步要联网，
-  `dsh-fairy-next-voice` 有三个 mdast 依赖得从 registry 解析）。
+- `pack-all` 按依赖顺序把七个包打到 `.dsh-market-home/pkgs`，并校验三件只有打出来才看得见的
+  事——`files` 里写的条目真的在包里、`main`/`exports` 指向的文件也在包里、锚包声明的范围覆盖
+  得住这一批的版本；`--install-test` 再把这批 tarball 真装进临时目录核一遍（要联网，
+  `dsh-fairy-next-voice` 有三个 mdast 依赖得从 registry 解析）。别用 `pnpm pack`：那是 pnpm
+  自带的“把当前目录打成包”，会把整个 workspace 打成 `dsh-fairy-next-workspace-0.0.0.tgz`。
+
 
 ## 仓库与镜像
 

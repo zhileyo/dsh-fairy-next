@@ -2,6 +2,9 @@ name: publish-npm
 
 # 七个包一起发到 npmjs。触发方式是打 tag（真发）或手动跑（默认只 dry-run）。
 # 这里不碰 CNB：镜像由 CNB 侧 .cnb.yml 的 pull 完成，本工作流不推任何远端仓库。
+#
+# 发的是 `pack-all` 打出来的 tarball，不是包目录。这样本地
+# `node tools/pack-all.mjs --install-test` 验过的字节，就是 registry 上收到的字节。
 
 on:
   push:
@@ -61,71 +64,25 @@ jobs:
 
       - run: node tools/verify-build.mjs
 
+      # 产物清单写到 .dsh-market-home/pkgs/pack-manifest.json；--json 顺便打进日志。
+      - name: pack the seven tarballs
+        run: node tools/pack-all.mjs --json
+
+      - name: compare the tag with the packed version
+        if: github.ref_type == 'tag'
+        run: |
+          version=$(node -p "require('./packages/dsh-fairy-next/package.json').version")
+          if [[ "$GITHUB_REF_NAME" != "v$version" ]]; then
+            echo "::warning::tag $GITHUB_REF_NAME 与锚包版本 $version 不一致，版本以 package.json 为准"
+          fi
+
+      # 已有 name@version 的包会被 publish-npm.mjs 跳过，所以重复触发是安全的。
       - name: publish
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
-            anchor=$(node -p "require('./packages/dsh-fairy-next/package.json').version")
-            if [[ "$GITHUB_REF_NAME" != "v$anchor" ]]; then
-              echo "::warning::tag $GITHUB_REF_NAME 与锚包版本 $anchor 不一致，版本以各包 package.json 为准"
-            fi
+          if [[ "$DRY_RUN" == "true" ]]; then
+            node tools/publish-npm.mjs --dry-run
+          else
+            node tools/publish-npm.mjs
           fi
-
-          # 依赖在前、锚包最后：锚包声明了对另外五个包的版本范围。
-          order=(
-            dsh-fairy-next-contracts
-            dsh-fairy-next-visual
-            dsh-fairy-next-startup
-            dsh-fairy-next-balance
-            dsh-fairy-next-voice
-            dsh-fairy-next-browser-dock
-            dsh-fairy-next
-          )
-
-          published=()
-          skipped=()
-          for dir in "${order[@]}"; do
-            name=$(node -p "require('./packages/$dir/package.json').name")
-            version=$(node -p "require('./packages/$dir/package.json').version")
-            if npm view "$name@$version" version >/dev/null 2>&1; then
-              echo "::notice::$name@$version 已经在 registry 上，跳过"
-              skipped+=("$name@$version")
-              continue
-            fi
-            args=(--access public)
-            if [[ "$DRY_RUN" == "true" ]]; then
-              args+=(--dry-run)
-            else
-              # --provenance 让 npm 把这次构建的 OIDC 身份签进 tarball 的 attestation
-              args+=(--provenance)
-            fi
-            echo "--- $name@$version (dry-run=$DRY_RUN)"
-            npm publish "./packages/$dir" "${args[@]}"
-            published+=("$name@$version")
-          done
-
-          # 注意：这个花括号块的退出码是块内最后一条命令的退出码，而 `[[ ]] && echo`
-          # 在列表为空时返回 1——配合 set -e 会把整个步骤判失败。所以用 if 而不是 &&，
-          # 并在末尾显式 true 收尾。
-          {
-            if [[ "$DRY_RUN" == "true" ]]; then
-              echo "## npm publish（dry-run）"
-            else
-              echo "## npm publish"
-            fi
-            echo
-            echo "| 包 | 结果 |"
-            echo "| --- | --- |"
-            if (( ${#published[@]} )); then
-              for item in "${published[@]}"; do
-                echo "| \`$item\` | 已发布 |"
-              done
-            fi
-            if (( ${#skipped[@]} )); then
-              for item in "${skipped[@]}"; do
-                echo "| \`$item\` | 已存在，跳过 |"
-              done
-            fi
-            true
-          } >> "$GITHUB_STEP_SUMMARY"

@@ -27,19 +27,19 @@ importers:
   packages/dsh-fairy-next:
     dependencies:
       dsh-fairy-next-balance:
-        specifier: ^0.2.0
+        specifier: ^0.1.0
         version: link:../dsh-fairy-next-balance
       dsh-fairy-next-browser-dock:
         specifier: ^0.1.0
         version: link:../dsh-fairy-next-browser-dock
       dsh-fairy-next-startup:
-        specifier: ^1.0.0
+        specifier: ^0.1.0
         version: link:../dsh-fairy-next-startup
       dsh-fairy-next-visual:
         specifier: ^0.1.0
         version: link:../dsh-fairy-next-visual
       dsh-fairy-next-voice:
-        specifier: ^1.0.0
+        specifier: ^0.1.0
         version: link:../dsh-fairy-next-voice
 
   packages/dsh-fairy-next-balance:

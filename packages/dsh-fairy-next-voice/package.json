@@ -1,6 +1,6 @@
 {
   "name": "dsh-fairy-next-voice",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Fairy voice: local TTS playback for assistant replies through an external local TTS runtime.",
   "type": "module",
   "main": "./lib/index.js",

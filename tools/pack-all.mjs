@@ -7,17 +7,22 @@
  * 以及锚包声明的版本范围是否覆盖得住这次打出来的包。这些都只有 pack 完才知道，
  * `npm publish --dry-run` 要跑在 CI 里，反馈太慢。
  *
- *   node tools/pack-all.mjs [--out <dir>] [--keep] [--install-test]
+ *   node tools/pack-all.mjs [--out <dir>] [--keep] [--install-test] [--json]
  *
  *   --out <dir>     改输出目录（相对仓库根，或绝对路径）
  *   --keep          不清理输出目录（默认先删，避免旧 tarball 混进安装目录）
  *   --install-test  打完之后把 tarball 装进临时目录，验证装上去的版本与 exports
+ *   --json          把 pack-manifest.json 打到 stdout（CI 用），不打表格
+ *
+ * 产物里总有一份 `pack-manifest.json`：本次打出来的包、版本、tarball 路径与依赖
+ * 范围。发布脚本按这份清单发，不再回到目录里重读 manifest。
  */
-import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { runNpm } from './npm-cli.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '..')
@@ -101,62 +106,22 @@ const satisfies = (versionText, rangeText) => {
 
 // --------------------------------------------------------------------- pack
 
-// 找到可以直接 exec 的 npm 入口。Windows 上 npm 是 .cmd，而 Node 22 起不再允许
-// 直接 spawn 批处理文件（EINVAL），所以优先顺着 PATH 找到 npm.cmd 旁边的
-// node_modules/npm/bin/npm-cli.js，用当前的 node 去跑它——这样也不用 shell，
-// 省掉 DEP0190 那条“参数未转义”的弃用警告。
-const delimiter = process.platform === 'win32' ? ';' : ':'
-const pickNpm = () => {
-	if (process.env.npm_execpath?.endsWith('.js')) {
-		return { command: process.execPath, prefix: [process.env.npm_execpath], shell: false }
-	}
-	if (process.platform === 'win32') {
-		for (const dir of (process.env.PATH ?? '').split(delimiter)) {
-			const cli = join(dir.replace(/^"|"$/g, ''), 'node_modules', 'npm', 'bin', 'npm-cli.js')
-			if (existsSync(cli)) return { command: process.execPath, prefix: [cli], shell: false }
-		}
-		return { command: 'npm.cmd', prefix: [], shell: true }
-	}
-	return { command: 'npm', prefix: [], shell: false }
-}
-const npm = pickNpm()
 if (!keep) await rm(outDir, { recursive: true, force: true })
 await mkdir(outDir, { recursive: true })
 
-// npm 会把日志写进 cache 目录；用户级 cache 在受限沙箱里可能不可写，
-// 于是真正的报错被“日志写不进去”盖掉。统一指到仓库内，跟 tarball 放一起。
-const cacheDir = join(dirname(outDir), '.npm-cache')
-const npmEnv = {
-	...process.env,
-	npm_config_cache: cacheDir,
-	npm_config_update_notifier: 'false',
-	npm_config_audit: 'false',
-	npm_config_fund: 'false',
-	npm_config_loglevel: 'error',
-}
-
 const problems = []
 const rows = []
+const records = []
 
 for (const pkg of ordered) {
 	const { name, version } = pkg.manifest
 
 	let info
 	try {
-		const stdout = execFileSync(
-			npm.command,
-			[...npm.prefix, 'pack', join(repo, 'packages', pkg.dir), '--pack-destination', outDir, '--json'],
-			{
-				encoding: 'utf8',
-				stdio: ['ignore', 'pipe', 'pipe'],
-				shell: npm.shell,
-				env: npmEnv,
-			},
-		)
+		const stdout = runNpm(['pack', join(repo, 'packages', pkg.dir), '--pack-destination', outDir, '--json'])
 		;[info] = JSON.parse(stdout)
 	} catch (error) {
-		const detail = String(error.stderr ?? error.message).trim().split('\n').slice(-3).join(' ')
-		problems.push(`${name}@${version}: npm pack 失败 —— ${detail}`)
+		problems.push(`${name}@${version}: npm pack 失败 —— ${error.message}`)
 		rows.push({ label: `${name}@${version}`, size: '-', files: '-', deps: 'pack failed' })
 		continue
 	}
@@ -198,6 +163,14 @@ for (const pkg of ordered) {
 		files: String(paths.length),
 		deps: rangeNotes.length > 0 ? rangeNotes.join('; ') : 'ok',
 	})
+	records.push({
+		name,
+		version,
+		file: join(outDir, info.filename),
+		size: info.size,
+		files: paths.length,
+		dependencies: pkg.manifest.dependencies ?? {},
+	})
 }
 
 // -------------------------------------------------------------- install test
@@ -216,15 +189,13 @@ if (argv.includes('--install-test')) {
 	try {
 		// --legacy-peer-deps：唯一的 peer 是宿主提供的 @deepseek-ai/cordis，不该由这次测试装；
 		// voice 的三个 mdast 依赖是普通依赖，所以这一步确实要能访问 registry。
-		execFileSync(
-			npm.command,
-			[...npm.prefix, 'install', '--no-audit', '--no-fund', '--ignore-scripts', '--legacy-peer-deps', ...tarballs],
-			{ cwd: scratch, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], shell: npm.shell, env: npmEnv },
+		runNpm(
+			['install', '--no-audit', '--no-fund', '--ignore-scripts', '--legacy-peer-deps', ...tarballs],
+			{ cwd: scratch },
 		)
 	} catch (error) {
 		installed = false
-		const detail = String(error.stderr ?? error.message).trim().split('\n').slice(-3).join(' ')
-		problems.push(`install test 失败（这一步要联网解析 voice 的 mdast 依赖）—— ${detail}`)
+		problems.push(`install test 失败（这一步要联网解析 voice 的 mdast 依赖）—— ${error.message}`)
 	}
 
 	if (installed) {
@@ -248,18 +219,38 @@ if (argv.includes('--install-test')) {
 	}
 }
 
+// ------------------------------------------------------------------ manifest
+
+// CI 只信 tarball。这份清单记录「这次打出来的确切产物」，发布脚本按它逐条发，
+// 不再回到目录里重读 package.json —— 否则本机验过的那批文件和线上一发的可能
+// 不是同一批。顺序就是依赖顺序：被依赖的在前，锚包最后。
+const manifest = {
+	schema: 1,
+	generatedAt: new Date().toISOString(),
+	outDir,
+	packages: records,
+}
+const manifestPath = join(outDir, 'pack-manifest.json')
+await writeFile(manifestPath, `${JSON.stringify(manifest, null, '\t')}\n`)
+
 // -------------------------------------------------------------------- report
 
-const width = Math.max(...rows.map((row) => row.label.length), 7)
-const pad = (text, size) => text.padEnd(size, ' ')
-console.log(`${pad('package', width)}  ${pad('size', 9)}  ${pad('files', 5)}  deps`)
-for (const row of rows) {
-	console.log(`${pad(row.label, width)}  ${pad(row.size, 9)}  ${pad(row.files, 5)}  ${row.deps}`)
+if (argv.includes('--json')) {
+	console.log(JSON.stringify(manifest))
+} else {
+	const width = Math.max(...rows.map((row) => row.label.length), 7)
+	const pad = (text, size) => text.padEnd(size, ' ')
+	console.log(`${pad('package', width)}  ${pad('size', 9)}  ${pad('files', 5)}  deps`)
+	for (const row of rows) {
+		console.log(`${pad(row.label, width)}  ${pad(row.size, 9)}  ${pad(row.files, 5)}  ${row.deps}`)
+	}
+
+	const totalKb = rows.reduce((sum, row) => sum + (Number.parseFloat(row.size) || 0), 0)
+	console.log(`\n${rows.length} package(s), ${totalKb.toFixed(1)} kB total → ${outDir}`)
+	console.log(`manifest: ${manifestPath}`)
+	if (installSummary) console.log(installSummary)
 }
 
-const totalKb = rows.reduce((sum, row) => sum + (Number.parseFloat(row.size) || 0), 0)
-console.log(`\n${rows.length} package(s), ${totalKb.toFixed(1)} kB total → ${outDir}`)
-if (installSummary) console.log(installSummary)
 
 if (problems.length > 0) {
 	console.error(`\n${problems.length} problem(s):`)

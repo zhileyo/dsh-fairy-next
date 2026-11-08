@@ -17,9 +17,9 @@
   },
   "dependencies": {
     "dsh-fairy-next-visual": "^0.1.0",
-    "dsh-fairy-next-startup": "^1.0.0",
-    "dsh-fairy-next-balance": "^0.2.0",
-    "dsh-fairy-next-voice": "^1.0.0",
+    "dsh-fairy-next-startup": "^0.1.0",
+    "dsh-fairy-next-balance": "^0.1.0",
+    "dsh-fairy-next-voice": "^0.1.0",
     "dsh-fairy-next-browser-dock": "^0.1.0"
   },
   "engines": {
