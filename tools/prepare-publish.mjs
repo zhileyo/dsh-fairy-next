@@ -15,7 +15,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '..')
 const dry = process.argv.includes('--dry')
 
-const REPO_URL = 'https://github.com/AlwaysFyo/dsh-fairy'
+const REPO_URL = 'https://github.com/zhileyo/dsh-fairy-next'
 
 const KEYWORDS = {
   'dsh-fairy-next': ['dsh', 'dsh-plugin', 'theme', 'fairy', 'zenless-zone-zero', 'hdd', 'skin'],
@@ -42,7 +42,7 @@ for (const dir of packages) {
 
   const next = { ...manifest }
   delete next.private
-  next.author = 'AlwaysFyo'
+  next.author = 'zhileyo'
   next.homepage = `${REPO_URL}#readme`
   next.repository = { type: 'git', url: `git+${REPO_URL}.git`, directory: `packages/${dir}` }
   next.bugs = { url: `${REPO_URL}/issues` }

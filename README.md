@@ -1,4 +1,4 @@
-# dsh-fairy
+# dsh-fairy-next
 
 把《绝区零》里 Fairy 的「空洞深潜系统（H.D.D）」做成 DeepSeekRuntime 的插件主题：
 整站换肤、常驻吉祥物舞台、满宽 HUD 输入坞、语音朗读、余额/电量卡、以及每个新
@@ -90,7 +90,7 @@ node tools/verify-build.mjs      # 校验 bundle 形态、id、裸 require 白�
 
 # 隔离开发实例（独立 DSH_HOME，不碰 ~/.dsh）
 node tools/dev-setup.mjs
-$env:DSH_HOME='D:\Projects\dsh-fairy\.dsh-dev-home'; Remove-Item Env:DSH_PROFILE -ErrorAction SilentlyContinue
+$env:DSH_HOME='D:\Projects\dsh-fairy-next\.dsh-dev-home'; Remove-Item Env:DSH_PROFILE -ErrorAction SilentlyContinue
 node node_modules\@deepseek-ai\dsh\lib\bin.js --profile fairy-dev --no-open --port 3400
 # token 在 .dsh-dev-home\boot-NN.log 里：token=([A-Za-z0-9_\-]+)
 ```
@@ -122,31 +122,44 @@ node tools/patch-reasoning-effort.mjs --check  # 只检查是否已打
 原生 `container-type:inline-size` 会量到 0 宽而退化成纯图标），以及把推理等级与
 刻度提到 WCAG 4.5:1 以上。
 
-## 远程仓库与镜像
+## 仓库与镜像
 
-- 主仓库（CNB，私有）：<https://cnb.cool/one-mugen/dsh-fairy>
-- 镜像（GitHub，私有、只读）：<https://github.com/AlwaysFyo/dsh-fairy>
+- **真源（GitHub，公开）**：<https://github.com/zhileyo/dsh-fairy-next>
+- **镜像（CNB，只读）**：<https://cnb.cool/zhileyo/dsh-fairy-next>
 
-日常开发只推 CNB。`main` 上的每次 push 都会触发 `.cnb.yml` 里的
-`mirror-to-github` 流水线，改写历史后强制镜像到 GitHub：
+开发只推 GitHub，CNB 侧不接受人工提交：
 
 ```powershell
-git push origin main             # origin = CNB
+git push origin main             # origin = GitHub
 ```
 
-镜像会**把 `.cnb.yml` 从整条历史里摘掉**（`git filter-branch --index-filter` +
-`--prune-empty`）：这份流水线配置只在 CNB 有意义，推到 GitHub 只是噪音。改写是
-确定性的——同样的输入永远得到同样的 SHA，所以增量推送仍然只传新提交；代价是
-**GitHub 的 SHA 与 CNB 不同**，两边不能直接比对 commit 号，只比对文件内容。
+CNB 是**拉取式**镜像：CNB 自己的 `.cnb.yml` 每小时用
+[`tencentcom/git-sync`](https://cnb.cool/cnb/plugins/tencentcom/git-sync) 的
+pull 模式从 GitHub 仓库拉取最新提交，也可以在 CNB 页面手动触发一次。
+GitHub 侧没有任何 workflow，也不会反过来推 CNB。
 
-镜像凭据（`GITHUB_USERNAME` / `GITHUB_TOKEN`）不写进仓库，由密钥仓库
-`one-mugen/secrets` 的 `secrets.yml` 通过 `imports` 注入；`GITHUB_TOKEN`
-需要 fine-grained token 的 Repository access 包含 `AlwaysFyo/dsh-fairy`、
-Contents 为 Read and write。流水线第一步会先用 GitHub API 预检凭据，
-凭据不可达时直接失败并给出具体原因，避免推送阶段抛出难懂的认证错误。
+```yaml
+main:
+  "crontab: 0 * * * *":
+    - name: pull-from-github
+      stages:
+        - name: git-sync
+          image: tencentcom/git-sync
+          settings:
+            target_url: https://github.com/zhileyo/dsh-fairy-next.git
+            sync_mode: pull
+```
 
-镜像是**强制**推送：CNB 上被改写的历史会在 GitHub 上被同步覆盖，
-所以不要在 GitHub 侧直接提交——那里的改动下次镜像就会被丢弃。
+拉取是逐字节镜像，所以**两边 commit SHA 完全一致**，可以直接比对。`.cnb.yml`
+本身也因此躺在 GitHub 仓库里——它就是镜像机制本身，不是噪音。（更早的方案是
+CNB 反向推 GitHub、并用 `git filter-branch` 把 `.cnb.yml` 从 GitHub 历史里摘掉，
+代价是两边 SHA 永不相同，已废弃。）
+
+拉取不需要凭据：GitHub 仓库是公开的。哪天真源改回私有，在 CNB 的密钥仓库里
+补 `GIT_USERNAME` / `GIT_ACCESS_TOKEN`，并取消 `.cnb.yml` 里 `username` /
+`password` 两行的注释即可。
+
+改名与迁移的逐步操作清单见 [docs/REPO.md](docs/REPO.md)。
 
 ## 验收工具（`tools/cdp/`）
 

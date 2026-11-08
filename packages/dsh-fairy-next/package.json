@@ -40,16 +40,16 @@
     "hdd",
     "skin"
   ],
-  "author": "AlwaysFyo",
+  "author": "zhileyo",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/AlwaysFyo/dsh-fairy#readme",
+  "homepage": "https://github.com/zhileyo/dsh-fairy-next#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AlwaysFyo/dsh-fairy.git",
+    "url": "git+https://github.com/zhileyo/dsh-fairy-next.git",
     "directory": "packages/dsh-fairy-next"
   },
   "bugs": {
-    "url": "https://github.com/AlwaysFyo/dsh-fairy/issues"
+    "url": "https://github.com/zhileyo/dsh-fairy-next/issues"
   },
   "publishConfig": {
     "access": "public",
