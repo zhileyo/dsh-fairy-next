@@ -13,6 +13,19 @@
  *   node tools/trust-publisher.mjs              # 七个包都配
  *   node tools/trust-publisher.mjs --check      # 只看现有配置
  *
+ * **本仓库的账号用不了这条路**：账号开了 2FA（`auth-and-writes`），而
+ * `npm trust` 的创建路径（github.js / gitlab.js / circleci.js）没有 `otplease`，
+ * 不会送 OTP；`create` 与 `list` 于是都返回 403。改用绕过 2FA 的 granular token
+ * 也不行——registry 的原话是
+ * `Granular access tokens that bypass two-factor authentication may not perform this action`
+ * （https://gh.io/npm-gat-bypass2fa-deprecation）。所以这里的七个关系只能在
+ * npmjs.com 的包设置页里点，每个包一次：
+ *   包页 → Settings → Trusted Publisher → GitHub Actions
+ *   Repository: zhileyo/dsh-fairy-next
+ *   Workflow filename: publish-npm.yml
+ *   勾上允许 `npm publish`
+ * 这个脚本留给没有 2FA 的账号，或者等 npm 把 OTP 补进创建路径之后再回来用。
+ *
  * 没有 `--dry-run`：npm 的 dry-run 连请求都不发、也不查登录状态，会一律报
  * 成功，看起来像配好了其实什么都没写。要预览就用 `--check`。
  *

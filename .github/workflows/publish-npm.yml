@@ -117,9 +117,3 @@ jobs:
           else
             node tools/publish-npm.mjs
           fi
-
-      # 只在引导那一次跑：包已经存在，且 .npmrc 里还有能绕过 2FA 的 token，
-      # 这时候建关系才不会被 E403 挡住。建完就该删掉 token 了。
-      - name: register the trusted publishers
-        if: ${{ inputs.bootstrap_token && !inputs.dry_run }}
-        run: node tools/trust-publisher.mjs

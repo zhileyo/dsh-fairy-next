@@ -213,35 +213,37 @@ node tools/pack-all.mjs --install-test           # 本地：打包 + 装一遍�
 node tools/publish-npm.mjs --dry-run             # 本地：走完检查，不上传
 ```
 
-稳态的发布凭据是 **OIDC（Trusted Publisher）**，仓库里不需要长期 token：
+稳态的发布凭据是 **OIDC（Trusted Publisher）**，仓库里不需要长期 token。
+这些关系**只能在 npm 网页上逐包点**，因为本仓库账号开了 2FA（`auth-and-writes`），而
+`npm trust` 的创建路径不送 OTP，`create` 与 `list` 一律 `E403`；换成绕过 2FA 的 granular token
+也不行，registry 会把话说明白：`Granular access tokens that bypass two-factor authentication may
+not perform this action`（[原因](https://gh.io/npm-gat-bypass2fa-deprecation)）。
 
-```powershell
-npm login --auth-type=web                 # 配关系要 npm 账号的写权限
-node tools/trust-publisher.mjs            # 给七个包各登记一条 GitHub Actions 关系
-node tools/trust-publisher.mjs --check    # 复查（只读）
-```
+七个包各点一次，填同样的三项：
 
-登记的内容是「GitHub Actions · `zhileyo/dsh-fairy-next` · `publish-npm.yml` · 允许 `npm publish`」。
-七个包名字各不相同，npm 的关系也是逐包登记的，所以用脚本循环，别在网页上点七遍。命令幂等。
-**首次发布要在配好之后 2 天内完成**：npm 用第一次成功发布把这条关系绑定到仓库的不可变身份，
-超过 2 天配置就过期作废，得删掉重配。
+- 包页 → Settings → Trusted Publisher → GitHub Actions
+- Repository：`zhileyo/dsh-fairy-next`
+- Workflow filename：`publish-npm.yml`
+- 勾上允许 `npm publish`
+
+`node tools/trust-publisher.mjs --check` 只对没有 2FA 的账号可用；本账号读也会 403。
+配好之后**要在 2 天内完成一次发布**：npm 用第一次成功发布把关系绑定到仓库的不可变身份，
+超时作废，只能删掉重配。
 
 工作流用 Node 24 自带的 npm 11 —— Trusted publishing 要求 npm ≥ 11.5.1，Node 22 自带 npm 10，
 换不到 OIDC 令牌。也别给 `setup-node` 设 `registry-url`：那会写一行
 `_authToken=${NODE_AUTH_TOKEN}` 到 `.npmrc`，而 OIDC 这条路上那个变量必须为空。
 
-**首版得用 token 引导一次，这不是可选项**：Trusted Publisher 只能挂在已经存在的包上，
-而账号开了 2FA（`auth-and-writes`）时 `npm trust` 的创建路径不送 OTP，
-`npm trust github` 与 `npm trust list` 都直接 `E403`。所以顺序是：
+**首版只能用 token 引导一次，这不是可选项**：Trusted Publisher 只能挂在已经存在的包上，
+而上面那两条限制把 CLI 与 token 两条路都堵死了。`0.1.0` 就是这么发的：
 
 1. npm 网页上建一个 granular token（Packages 读写、允许绕过 2FA、有效期压到几天），
    `gh secret set NPM_TOKEN --repo zhileyo/dsh-fairy-next`；
-2. 手动跑工作流，`dry_run=false` + `bootstrap_token=true` —— 这一步会把 token 写进
-   runner 的 `.npmrc` 再把七个 `0.1.0` 发出去；
-3. 包存在之后，在 npm 网页给七个包各建一条 Trusted Publisher
-   （GitHub Actions / `zhileyo/dsh-fairy-next` / `publish-npm.yml` / 允许 `npm publish`）；
-4. 删掉 secret 与工作流里那个 `authenticate with the bootstrap token` 步骤，
-   把 `bootstrap_token` 输入一并去掉。之后打 `v*` tag 就只走 OIDC。
+2. 手动跑工作流，`dry_run=false` + `bootstrap_token=true` —— 这一步把 token 写进
+   runner 的 `.npmrc`，再把七个 `0.1.0` 发出去（已存在的版本会自动跳过，可重复跑）；
+3. 包存在之后，回到上面那段网页步骤给七个包建 Trusted Publisher；
+4. 删掉 secret，以及工作流里的 `authenticate with the bootstrap token` 步骤和
+   `bootstrap_token` 输入。之后打 `v*` tag 就只走 OIDC。
 
 打包前提：
 
