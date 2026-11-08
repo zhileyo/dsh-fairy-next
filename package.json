@@ -13,7 +13,7 @@
     "build": "node tools/build-all.mjs",
     "verify": "node tools/verify-build.mjs",
     "probe:setup": "node tools/dev-setup.mjs",
-    "probe:web": "node tools/dev-web.mjs"
+    "probe:web": "pwsh -File tools/dev-start.ps1"
   },
   "devDependencies": {
     "@deepseek-ai/dsh": "0.2.1-rc.2",
