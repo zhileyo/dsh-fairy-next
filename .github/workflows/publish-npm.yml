@@ -1,0 +1,118 @@
+name: publish-npm
+
+# 七个包一起发到 npmjs。触发方式是打 tag（真发）或手动跑（默认只 dry-run）。
+# 这里不碰 CNB：镜像由 CNB 侧 .cnb.yml 的 pull 完成，本工作流不推任何远端仓库。
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 只跑 npm publish --dry-run，不真的发布
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  # provenance 需要把这份构建的 OIDC 身份交给 npm
+  id-token: write
+
+concurrency:
+  group: publish-npm
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # 要么在仓库 Secrets 里放 NPM_TOKEN（细粒度 token，勾 bypass 2FA），
+      # 要么在 npmjs 上给每个包配好 Trusted Publisher 走 OIDC——后者不需要 token。
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 元数据审计：只打印每个包最终会发哪些文件，不写盘。
+      - name: audit manifests
+        run: node tools/prepare-publish.mjs --dry
+
+      # 把 dev 用的 link:/workspace: 依赖改写成版本范围；当前清单已是范围，这一步是幂等的。
+      - name: pin dependency ranges
+        run: |
+          node tools/pin-versions.mjs
+          git --no-pager diff --stat -- packages || true
+
+      - run: node tools/build-all.mjs
+
+      - run: node tools/verify-build.mjs
+
+      - name: publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            anchor=$(node -p "require('./packages/dsh-fairy-next/package.json').version")
+            if [[ "$GITHUB_REF_NAME" != "v$anchor" ]]; then
+              echo "::warning::tag $GITHUB_REF_NAME 与锚包版本 $anchor 不一致，版本以各包 package.json 为准"
+            fi
+          fi
+
+          # 依赖在前、锚包最后：锚包声明了对另外五个包的版本范围。
+          order=(
+            dsh-fairy-next-contracts
+            dsh-fairy-next-visual
+            dsh-fairy-next-startup
+            dsh-fairy-next-balance
+            dsh-fairy-next-voice
+            dsh-fairy-next-browser-dock
+            dsh-fairy-next
+          )
+
+          published=()
+          skipped=()
+          for dir in "${order[@]}"; do
+            name=$(node -p "require('./packages/$dir/package.json').name")
+            version=$(node -p "require('./packages/$dir/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "::notice::$name@$version 已经在 registry 上，跳过"
+              skipped+=("$name@$version")
+              continue
+            fi
+            args=(--access public)
+            if [[ "$DRY_RUN" == "true" ]]; then
+              args+=(--dry-run)
+            else
+              # --provenance 让 npm 把这次构建的 OIDC 身份签进 tarball 的 attestation
+              args+=(--provenance)
+            fi
+            echo "--- $name@$version (dry-run=$DRY_RUN)"
+            npm publish "./packages/$dir" "${args[@]}"
+            published+=("$name@$version")
+          done
+
+          {
+            echo "## npm publish$([[ "$DRY_RUN" == "true" ]] && echo '（dry-run）')"
+            echo
+            echo "| 包 | 结果 |"
+            echo "| --- | --- |"
+            for item in "${published[@]:-}"; do
+              [[ -n "$item" ]] && echo "| \`$item\` | 已发布 |"
+            done
+            for item in "${skipped[@]:-}"; do
+              [[ -n "$item" ]] && echo "| \`$item\` | 已存在，跳过 |"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"

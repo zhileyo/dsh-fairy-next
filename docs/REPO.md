@@ -13,7 +13,8 @@
 本地开发 ──push──▶ GitHub（真源） ──CNB 定时 pull──▶ CNB（镜像）
 ```
 
-CNB 侧**没有任何推送 GitHub 的流水线**，GitHub 侧也没有 workflow。CNB 的
+CNB 侧**没有任何推送 GitHub 的流水线**；GitHub 侧只有一个发 npm 的
+`.github/workflows/publish-npm.yml`，它不碰 CNB。CNB 的
 `.cnb.yml` 用 [`tencentcom/git-sync`](https://cnb.cool/cnb/plugins/tencentcom/git-sync)
 的 `sync_mode: pull` 主动拉取，每小时一次，也可以手动触发。
 

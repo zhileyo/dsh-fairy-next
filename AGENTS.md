@@ -59,7 +59,9 @@
    GitHub 的流水线——那会和拉取形成回环。改动后要重新解析定时任务（只有 `.cnb.yml`
    变更的那次 push 才会刷新）。
 3. **只往 GitHub `origin` 推。** CNB 是只读镜像；`git push cnb` 只用于新仓库首次 bootstrap。
-4. **七个包同版本、一起发布。** 内部互相依赖 `^0.1.0` 这类范围，单发一个包会装不上。
+4. **七个包一起发布，但版本各自独立。** 发布走 `.github/workflows/publish-npm.yml`（打 `v*` tag
+   或手动触发，默认 dry-run）。锚包声明的是 `^0.1.0` 这类范围，发新版本时锚包的依赖范围必须覆盖
+   得住实际发出的版本，否则装上后内部依赖会解析到旧包。
 5. **搞清楚 `lib/client.js` 是产物还是源码。** `visual`、`browser-dock` 有 `src/client/`：
    改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。`balance`、`startup`、
    `voice` **没有** `src/client/`：它们的 `lib/client.js` 就是源码（上游预构建后手工移植成

@@ -3,6 +3,7 @@
 > 把《绝区零》里 Fairy 的「空洞深潜系统（H.D.D）」做成 DeepSeek Harness 的插件主题套件：整站换肤、常驻吉祥物舞台、满宽 HUD 输入坞、语音朗读、余额/电量卡，以及每个新文档都落在空白会话页。
 
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![npm](https://img.shields.io/badge/npm-dsh--fairy--next-cb3837.svg)](https://www.npmjs.com/package/dsh-fairy-next)
 [![dsh](https://img.shields.io/badge/DSH-0.2.1--rc.2-62d4ff.svg)](https://github.com/deepseek-ai/dsh)
 [![node](https://img.shields.io/badge/node-%E2%89%A522.12-339933.svg)](package.json)
 [![mirror](https://img.shields.io/badge/mirror-cnb.cool-1f6feb.svg)](https://cnb.cool/zhileyo/dsh-fairy-next)
@@ -65,9 +66,9 @@
 | `dsh-fairy-next-browser-dock` | 浏览器 dock 与 `@playwright/mcp` 的 stdio 代理（`proxy.cjs`） | `src/client/` → rollup |
 | `dsh-fairy-next-contracts` | 跨包只读契约（命名空间、DOM 锚点、词汇表） | 纯 ESM，不打包 |
 
-七个包必须**同版本、一起发布**：它们在内部互相依赖 `^0.1.0` 这类范围。「有 `src/client/`」与
-「`lib/client.js` 就是源码」的区别决定了改动落在哪一层，`tools/build-all.mjs` 按目录是否存在来
-分流，细节见 [AGENTS.md](AGENTS.md)。
+七个包一起发布，但**版本各自独立**（锚包声明的是 `^0.1.0` 这类范围，所以发新版本时锚包的
+依赖范围要跟得上）。「有 `src/client/`」与「`lib/client.js` 就是源码」的区别决定了改动落在哪
+一层，`tools/build-all.mjs` 按目录是否存在来分流，细节见 [AGENTS.md](AGENTS.md)。
 
 ```text
 tools/                         构建（build-all / build-client / verify-build）、发布
@@ -77,6 +78,7 @@ dev/profile/                   隔离开发实例用的 DSH profile（junction �
 docs/                          REPO / TTS / ADAPTATION / VERIFICATION
 packages/*/test/               各包的纯函数单测
 .cnb.yml                       CNB 侧拉取式镜像流水线（见「仓库与镜像」）
+.github/workflows/             发 npm 的 publish-npm（打 tag 触发）
 ```
 
 `node_modules/`、`.dsh-dev-home/`、`.dsh-market-home/`、`.pnpm-store/` 都是本地产物，已 gitignore。
@@ -187,21 +189,37 @@ node tools/mock-tts.mjs --port=9881              # 假 TTS，验完整语音链
 
 ## 打包与发布
 
-`tools/pin-versions.mjs` 把包之间的 `link:` 依赖改写成版本范围（dev profile 仍走 `link:`，
-本地迭代不受影响），`pnpm pack` 出产物后即可按市场的方式安装：
+发布到 npmjs 交给 [`.github/workflows/publish-npm.yml`](.github/workflows/publish-npm.yml)：
+**打 tag 就发**，也可以在 GitHub 页面手动跑一次（默认只 dry-run）。
 
 ```powershell
-node tools/pin-versions.mjs
-# 每个包：pnpm pack --pack-destination .dsh-market-home/pkgs
+git tag v0.1.0; git push origin v0.1.0            # tag 跟着锚包版本走，如 v0.1.0
+gh workflow run publish-npm --repo zhileyo/dsh-fairy-next   # 手动：默认 dry_run=true
+gh workflow run publish-npm --repo zhileyo/dsh-fairy-next -f dry_run=false   # 真发
 ```
 
-两点打包前提（真实市场安装时由 registry 满足）：
+工作流顺序：`pnpm install --frozen-lockfile` → `prepare-publish.mjs --dry`（先审计每个包会发
+哪些文件）→ `pin-versions.mjs` → `build-all` → `verify-build` → 按依赖顺序逐个
+`npm publish --access public --provenance`。顺序是 contracts → visual → startup → balance →
+voice → browser-dock → 锚包；registry 上已存在的 `name@version` 会直接跳过，所以重复触发是安全的。
 
-- 七个包一起发，理由见 [包与目录](#包与目录) 的版本说明；
+凭据二选一：
+
+- 仓库 Secret `NPM_TOKEN`（npmjs 的 granular token，需要勾上 bypass 2FA）；
+- 或给七个包配 Trusted Publisher（GitHub Actions + `zhileyo/dsh-fairy-next` + `publish-npm.yml`），
+  走 OIDC，不需要 token。两者都没有时工作流会以 `ENEEDAUTH` 失败。
+
+打包前提：
+
+- 七个包一起发，版本各自独立：当前 contracts / visual / browser-dock / 锚包是 `0.1.0`，
+  balance `0.2.0`，startup / voice `1.0.0`。锚包声明的范围必须覆盖得住这一批发出的版本，
+  否则装上后内部依赖会解析到旧包（原因见 [包与目录](#包与目录)）；
 - `dsh-fairy-next-voice` 还要装 `mdast-util-from-markdown` / `mdast-util-gfm` /
   `micromark-extension-gfm`——缺了它的**宿主半边**会 import 失败，表现为启动日志一行
   `warning: 1 entry did not activate`，其余插件与整页仍正常（0.2.1 对宿主侧失败是告警，
   客户端侧失败才会驻留启动页）。
+- 只想在本地看产物：`node tools/pin-versions.mjs` 之后按包 `pnpm pack --pack-destination
+  .dsh-market-home/pkgs`。
 
 ## 仓库与镜像
 
@@ -216,7 +234,8 @@ git push origin main             # origin = GitHub，只往这里推
 
 CNB 是**拉取式**镜像：CNB 自己的 `.cnb.yml` 每小时用
 [`tencentcom/git-sync`](https://cnb.cool/cnb/plugins/tencentcom/git-sync) 的 pull 模式从 GitHub
-拉取最新提交，也可以在 CNB 页面手动触发一次。GitHub 侧没有任何 workflow，也不会反过来推 CNB。
+拉取最新提交，也可以在 CNB 页面手动触发一次。GitHub 侧只有一个发 npm 的工作流，不负责镜像，
+也不会反过来推 CNB。
 
 ```yaml
 main:
