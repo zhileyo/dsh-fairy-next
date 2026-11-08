@@ -6,9 +6,11 @@ nodeLinker: hoisted
 linkWorkspacePackages: true
 preferWorkspacePackages: true
 
-onlyBuiltDependencies:
-  - '@deepseek-ai/dsh-subprocess-local'
-  - '@google/genai'
-  - koffi
-  - node-pty
-  - protobufjs
+# pnpm 11 把构建脚本白名单从 onlyBuiltDependencies 换成了 allowBuilds 映射；
+# 不在表里的包会在 install 末尾报 ERR_PNPM_IGNORED_BUILDS 并以非零码退出（CI 尤其明显）。
+allowBuilds:
+  '@deepseek-ai/dsh-subprocess-local': true
+  '@google/genai': true
+  koffi: true
+  node-pty: true
+  protobufjs: true
