@@ -10,6 +10,10 @@
 余额卡、空白会话页启动行为。目标宿主版本 **DSH 0.2.1-rc.2**，上游移植自
 [Chengzhibense/Fairy-DSH](https://github.com/Chengzhibense/Fairy-DSH)（按 0.1.1-rc.2 编写）。
 
+仓库与锚包叫 `dsh-fairy-next`，六个子包是 `dsh-fairy-*`：`dsh-fairy` 与
+`dsh-fairy-voice` 在 npm 上已被他人占用，所以语音包叫 `dsh-fairy-tts`。包名只是安装名，
+宿主契约里的 `dsh-fairy` / `fairy-*` 标识符不跟着变（见「硬约束」第 1 条）。
+
 ## 环境
 
 | 项 | 值 |
@@ -39,7 +43,7 @@
 | `node tools/prepare-publish.mjs` | 生成待发布包元数据（homepage/repository/bugs/author 都由 `REPO_URL` 派生） |
 | `node tools/mock-tts.mjs --port=9881` | GPT-SoVITS 兼容假 TTS，用来验完整语音链 |
 | `node tools/cdp/<name>.mjs <url>` | 真实 Chromium + CDP 数值断言（清单见 [docs/VERIFICATION.md](docs/VERIFICATION.md)） |
-| `node tools/gen-theme-ramp.mjs`、`port-packages.mjs`、`rename-packages.mjs` | 一次性迁移/生成脚本，平时不用跑 |
+| `node tools/gen-theme-ramp.mjs`、`port-packages.mjs` | 一次性迁移/生成脚本，平时不用跑 |
 
 `verify-build.mjs` 检查的四条（只查有 `dsh.client` 的包）：
 
@@ -51,10 +55,10 @@
 
 ## 硬约束
 
-1. **运行时标识符是兼容面，不要顺手改名。** 项目名早已是 `dsh-fairy-next`，但下面这些
+1. **运行时标识符是兼容面，不要顺手改名。** 包名与仓库名变过几轮，但下面这些
    属于宿主契约或用户已有数据的落盘位置，改动即破坏兼容：
    - 宿主路由 `/dsh-fairy/settings`、`/dsh-fairy/persona*`、`/fairy-voice/*`
-   - `ROUTE_PREFIX = '/dsh-fairy'`（`packages/dsh-fairy-next-visual/lib/index.js:22`）
+   - `ROUTE_PREFIX = '/dsh-fairy'`（`packages/dsh-fairy-visual/lib/index.js:22`）
    - `localStorage` 键 `dsh-fairy:debug`、`dsh.fairyVoice.volume`
    - CSS 前缀 `.dsh-fairy-*`、`.dsh-hdd-*`，DOM 标记 `data-dsh-fairy-*`
    - `$DSH_HOME/fairy-visual`、`fairy-identity`、`fairy-voice`、`fairy-persona`
@@ -78,11 +82,12 @@
    **新包的首版例外**：关系只能挂在已存在的包上，所以首版要用仓库 Secret `NPM_TOKEN` +
    工作流输入 `bootstrap_token=true` 发一次。发完立刻删掉 secret、那个引导步骤和输入——
    留着它等于把 OIDC 换成长期 token。
-5. **搞清楚 `lib/client.js` 是产物还是源码。** `visual`、`browser-dock` 有 `src/client/`：
-   改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。`balance`、`startup`、
-   `voice` **没有** `src/client/`：它们的 `lib/client.js` 就是源码（上游预构建后手工移植成
-   module-loader 形态，见 `tools/port-packages.mjs`），`build-all` 会明确跳过——这三个包要直接改
-   `lib`。改之前先看 `packages/<pkg>/src` 在不在，别改错文件。
+5. **搞清楚 `lib/client.js` 是产物还是源码。** `dsh-fairy-visual`、`dsh-fairy-browser-dock`
+   有 `src/client/`：改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。
+   `dsh-fairy-balance`、`dsh-fairy-startup`、`dsh-fairy-tts` **没有** `src/client/`：它们的
+   `lib/client.js` 就是源码（上游预构建后手工移植成 module-loader 形态，见
+   `tools/port-packages.mjs`），`build-all` 会明确跳过——这三个包要直接改 `lib`。改之前先看
+   `packages/<pkg>/src` 在不在，别改错文件。
 
 ## 代码约定
 

@@ -30,7 +30,7 @@ jobs:
             exit 1
           fi
           echo "id token length: ${#token}"
-          for pkg in dsh-fairy-next dsh-fairy-next-contracts; do
+          for pkg in dsh-fairy-next dsh-fairy-contracts; do
             echo "--- $pkg ---"
             code=$(curl -sS -o /tmp/body.json -w '%{http_code}' -X POST \
               -H "Authorization: Bearer $token" \

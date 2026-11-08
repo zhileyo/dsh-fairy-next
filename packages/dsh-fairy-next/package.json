@@ -16,11 +16,11 @@
     }
   },
   "dependencies": {
-    "dsh-fairy-next-visual": "^0.1.1",
-    "dsh-fairy-next-startup": "^0.1.1",
-    "dsh-fairy-next-balance": "^0.1.1",
-    "dsh-fairy-next-voice": "^0.1.1",
-    "dsh-fairy-next-browser-dock": "^0.1.1"
+    "dsh-fairy-visual": "^0.1.1",
+    "dsh-fairy-startup": "^0.1.1",
+    "dsh-fairy-balance": "^0.1.1",
+    "dsh-fairy-tts": "^0.1.1",
+    "dsh-fairy-browser-dock": "^0.1.1"
   },
   "engines": {
     "node": ">=22.12.0"

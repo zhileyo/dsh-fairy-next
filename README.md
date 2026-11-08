@@ -59,12 +59,17 @@
 | 包 | 职责 | 客户端产物 |
 | --- | --- | --- |
 | `dsh-fairy-next` | 锚包：市场安装入口，只有声明文件 | — |
-| `dsh-fairy-next-visual` | 主题主体（背景、舞台、输入坞、设置页） | `src/client/` → rollup |
-| `dsh-fairy-next-startup` | 新 document 落到空白会话页 | `lib/client.js` 即源码 |
-| `dsh-fairy-next-balance` | 余额卡与今日 token 估算 | `lib/client.js` 即源码 |
-| `dsh-fairy-next-voice` | 朗读控制、波形、TTS 配置页（宿主半边 + 客户端半边） | `lib/client.js` 即源码 |
-| `dsh-fairy-next-browser-dock` | 浏览器 dock 与 `@playwright/mcp` 的 stdio 代理（`proxy.cjs`） | `src/client/` → rollup |
-| `dsh-fairy-next-contracts` | 跨包只读契约（命名空间、DOM 锚点、词汇表） | 纯 ESM，不打包 |
+| `dsh-fairy-visual` | 主题主体（背景、舞台、输入坞、设置页） | `src/client/` → rollup |
+| `dsh-fairy-startup` | 新 document 落到空白会话页 | `lib/client.js` 即源码 |
+| `dsh-fairy-balance` | 余额卡与今日 token 估算 | `lib/client.js` 即源码 |
+| `dsh-fairy-tts` | 朗读控制、波形、TTS 配置页（宿主半边 + 客户端半边） | `lib/client.js` 即源码 |
+| `dsh-fairy-browser-dock` | 浏览器 dock 与 `@playwright/mcp` 的 stdio 代理（`proxy.cjs`） | `src/client/` → rollup |
+| `dsh-fairy-contracts` | 跨包只读契约（命名空间、DOM 锚点、词汇表） | 纯 ESM，不打包 |
+
+包名不统一是有意的：仓库与锚包都叫 `dsh-fairy-next`（市场按这个名字装），六个子包是
+`dsh-fairy-*`（`dsh-fairy` 与 `dsh-fairy-voice` 在 npm 上已被别人占，语音包因此叫
+`dsh-fairy-tts`）。改名只影响安装名，宿主侧的路由、`localStorage` 键、`$DSH_HOME` 目录和
+CSS 前缀仍沿用 `dsh-fairy` / `fairy-*`，见 [AGENTS.md](AGENTS.md) 的硬约束。
 
 七个包**同一个版本号、一起发布**：锚包声明的是 `^0.1.0` 这类范围，所以版本只能整批动
 （`node tools/bump-version.mjs <version>` 会改七份 manifest 和锚包的依赖范围，并提示
@@ -252,14 +257,14 @@ not perform this action`（[原因](https://gh.io/npm-gat-bypass2fa-deprecation)
   `pnpm install --lockfile-only` 并把锁文件一起提交（importers 记的是依赖声明）。锚包声明的范围
   必须覆盖得住这一批发出的版本，否则装上后内部依赖会解析到旧包（原因见
   [包与目录](#包与目录)）；
-- `dsh-fairy-next-voice` 还要装 `mdast-util-from-markdown` / `mdast-util-gfm` /
+- `dsh-fairy-tts` 还要装 `mdast-util-from-markdown` / `mdast-util-gfm` /
   `micromark-extension-gfm`——缺了它的**宿主半边**会 import 失败，表现为启动日志一行
   `warning: 1 entry did not activate`，其余插件与整页仍正常（0.2.1 对宿主侧失败是告警，
   客户端侧失败才会驻留启动页）。
 - `pack-all` 按依赖顺序把七个包打到 `.dsh-market-home/pkgs`，并校验三件只有打出来才看得见的
   事——`files` 里写的条目真的在包里、`main`/`exports` 指向的文件也在包里、锚包声明的范围覆盖
   得住这一批的版本；`--install-test` 再把这批 tarball 真装进临时目录核一遍（要联网，
-  `dsh-fairy-next-voice` 有三个 mdast 依赖得从 registry 解析）。别用 `pnpm pack`：那是 pnpm
+  `dsh-fairy-tts` 有三个 mdast 依赖得从 registry 解析）。别用 `pnpm pack`：那是 pnpm
   自带的“把当前目录打成包”，会把整个 workspace 打成 `dsh-fairy-next-workspace-0.0.0.tgz`。
 
 

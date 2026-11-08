@@ -14,10 +14,10 @@ What it actually carries is the wiring.
 | `icon.svg` | card icon |
 | `lib/index.js` | empty host half |
 
-The five patch entries are `fairy-visual` → `dsh-fairy-next-visual`,
-`fairy-startup` → `dsh-fairy-next-startup`, `balance-meter` →
-`dsh-fairy-next-balance`, `fairy-voice` → `dsh-fairy-next-voice` and
-`browser-dock` → `dsh-fairy-next-browser-dock`. Each entry is a separate
+The five patch entries are `fairy-visual` → `dsh-fairy-visual`,
+`fairy-startup` → `dsh-fairy-startup`, `balance-meter` →
+`dsh-fairy-balance`, `fairy-voice` → `dsh-fairy-tts` and
+`browser-dock` → `dsh-fairy-browser-dock`. Each entry is a separate
 plugin load, which is why a broken sibling degrades to one inactive entry
 instead of taking the whole skin down. Removing a line is how you disable that
 plugin.

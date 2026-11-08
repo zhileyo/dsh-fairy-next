@@ -2,7 +2,7 @@
 /**
  * Mock GPT-SoVITS-compatible local TTS endpoint for end-to-end verification.
  *
- * The ported dsh-fairy-voice host half posts {text, text_lang, ref_audio_path,
+ * The ported dsh-fairy-tts host half posts {text, text_lang, ref_audio_path,
  * prompt_text, prompt_lang, text_split_method} to http://127.0.0.1:9880/tts and
  * streams the response body straight to the browser as 32 kHz / 16-bit mono PCM.
  * This server answers the same contract with a synthesised tone so the whole

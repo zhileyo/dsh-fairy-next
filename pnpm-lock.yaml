@@ -24,70 +24,61 @@ importers:
         specifier: ^8.22.0
         version: 8.22.0
 
+  packages/dsh-fairy-balance:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: ~4.0.5
+        version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
+      dsh-fairy-contracts:
+        specifier: ^0.1.1
+        version: link:../dsh-fairy-contracts
+
+  packages/dsh-fairy-browser-dock:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: ~4.0.5
+        version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
+      dsh-fairy-contracts:
+        specifier: ^0.1.1
+        version: link:../dsh-fairy-contracts
+
+  packages/dsh-fairy-contracts: {}
+
   packages/dsh-fairy-next:
     dependencies:
-      dsh-fairy-next-balance:
+      dsh-fairy-balance:
         specifier: ^0.1.1
-        version: link:../dsh-fairy-next-balance
-      dsh-fairy-next-browser-dock:
+        version: link:../dsh-fairy-balance
+      dsh-fairy-browser-dock:
         specifier: ^0.1.1
-        version: link:../dsh-fairy-next-browser-dock
-      dsh-fairy-next-startup:
+        version: link:../dsh-fairy-browser-dock
+      dsh-fairy-startup:
         specifier: ^0.1.1
-        version: link:../dsh-fairy-next-startup
-      dsh-fairy-next-visual:
+        version: link:../dsh-fairy-startup
+      dsh-fairy-tts:
         specifier: ^0.1.1
-        version: link:../dsh-fairy-next-visual
-      dsh-fairy-next-voice:
+        version: link:../dsh-fairy-tts
+      dsh-fairy-visual:
         specifier: ^0.1.1
-        version: link:../dsh-fairy-next-voice
+        version: link:../dsh-fairy-visual
 
-  packages/dsh-fairy-next-balance:
+  packages/dsh-fairy-startup:
     dependencies:
       '@deepseek-ai/cordis':
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
-      dsh-fairy-next-contracts:
+      dsh-fairy-contracts:
         specifier: ^0.1.1
-        version: link:../dsh-fairy-next-contracts
+        version: link:../dsh-fairy-contracts
 
-  packages/dsh-fairy-next-browser-dock:
+  packages/dsh-fairy-tts:
     dependencies:
       '@deepseek-ai/cordis':
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
-      dsh-fairy-next-contracts:
+      dsh-fairy-contracts:
         specifier: ^0.1.1
-        version: link:../dsh-fairy-next-contracts
-
-  packages/dsh-fairy-next-contracts: {}
-
-  packages/dsh-fairy-next-startup:
-    dependencies:
-      '@deepseek-ai/cordis':
-        specifier: ~4.0.5
-        version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
-      dsh-fairy-next-contracts:
-        specifier: ^0.1.1
-        version: link:../dsh-fairy-next-contracts
-
-  packages/dsh-fairy-next-visual:
-    dependencies:
-      '@deepseek-ai/cordis':
-        specifier: ~4.0.5
-        version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
-      dsh-fairy-next-contracts:
-        specifier: ^0.1.1
-        version: link:../dsh-fairy-next-contracts
-
-  packages/dsh-fairy-next-voice:
-    dependencies:
-      '@deepseek-ai/cordis':
-        specifier: ~4.0.5
-        version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
-      dsh-fairy-next-contracts:
-        specifier: ^0.1.1
-        version: link:../dsh-fairy-next-contracts
+        version: link:../dsh-fairy-contracts
       mdast-util-from-markdown:
         specifier: 2.0.3
         version: 2.0.3
@@ -97,6 +88,15 @@ importers:
       micromark-extension-gfm:
         specifier: 3.0.0
         version: 3.0.0
+
+  packages/dsh-fairy-visual:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: ~4.0.5
+        version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
+      dsh-fairy-contracts:
+        specifier: ^0.1.1
+        version: link:../dsh-fairy-contracts
 
 packages:
 

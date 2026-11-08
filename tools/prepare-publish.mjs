@@ -19,12 +19,12 @@ const REPO_URL = 'https://github.com/zhileyo/dsh-fairy-next'
 
 const KEYWORDS = {
   'dsh-fairy-next': ['dsh', 'dsh-plugin', 'theme', 'fairy', 'zenless-zone-zero', 'hdd', 'skin'],
-  'dsh-fairy-next-visual': ['dsh', 'dsh-plugin', 'theme', 'fairy', 'hdd', 'zenless-zone-zero'],
-  'dsh-fairy-next-voice': ['dsh', 'dsh-plugin', 'tts', 'voice', 'gpt-sovits', 'index-tts'],
-  'dsh-fairy-next-startup': ['dsh', 'dsh-plugin', 'session', 'startup'],
-  'dsh-fairy-next-balance': ['dsh', 'dsh-plugin', 'balance', 'usage', 'sidebar'],
-  'dsh-fairy-next-browser-dock': ['dsh', 'dsh-plugin', 'browser', 'playwright', 'dock'],
-  'dsh-fairy-next-contracts': ['dsh', 'dsh-plugin', 'contracts', 'dom-anchors'],
+  'dsh-fairy-visual': ['dsh', 'dsh-plugin', 'theme', 'fairy', 'hdd', 'zenless-zone-zero'],
+  'dsh-fairy-tts': ['dsh', 'dsh-plugin', 'tts', 'voice', 'gpt-sovits', 'index-tts'],
+  'dsh-fairy-startup': ['dsh', 'dsh-plugin', 'session', 'startup'],
+  'dsh-fairy-balance': ['dsh', 'dsh-plugin', 'balance', 'usage', 'sidebar'],
+  'dsh-fairy-browser-dock': ['dsh', 'dsh-plugin', 'browser', 'playwright', 'dock'],
+  'dsh-fairy-contracts': ['dsh', 'dsh-plugin', 'contracts', 'dom-anchors'],
 }
 
 const packages = (await readdir(join(repo, 'packages'), { withFileTypes: true }))

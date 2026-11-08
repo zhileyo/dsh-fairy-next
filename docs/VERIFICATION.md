@@ -62,7 +62,7 @@
 | `prefers-reduced-motion: reduce` | 静止与切换后过渡帧均为 0，glitch 动画不挂 |
 | 语音链路（mock TTS） | `/fairy-voice/status` → `available:true`；`/tts` → `200 audio/pcm` 53 760 B；浏览器解码 0.6 s @32 kHz 实际出声 |
 | 市场式安装（tarball） | 7 个 `pnpm pack` 产物装进全新 `DSH_HOME` 后：`--dump-config` 出现五行，五个 client bundle 全部进 roster，voice 宿主可用 |
-| 市场式一键停/起 | 把锚包 patch 插入的五个 id 全部 `disabled: true` 后重启：roster 里不再有 `dsh-fairy-next-visual`，`/dsh-fairy/diag` 返回 **404**，日志无 fairy 相关 warning；去掉该层再启动即恢复（roster 命中、`diag.ok=true`） |
+| 市场式一键停/起 | 把锚包 patch 插入的五个 id 全部 `disabled: true` 后重启：roster 里不再有 `dsh-fairy-visual`，`/dsh-fairy/diag` 返回 **404**，日志无 fairy 相关 warning；去掉该层再启动即恢复（roster 命中、`diag.ok=true`） |
 | 眼睛大小 / 动画速度滑条 | 真实拖拽后落盘（`mascotScale 0.73`），`#dsh-fairy-root` 上 `--dsh-fairy-mascot-scale: 0.76`、`data-dsh-fairy-animation-rate=1.5` |
 | 选择模型 | 点击 → 「模型与推理等级」菜单 → 「模型」行 → 12 个 `menuitemradio`（两个 provider 组）→ 选中后按钮 `aria-label` 变为所选项 |
 | 余额卡随侧栏收放 | 展开 `[14,1078,242,62]` 三行；收起后原生 rail 56px、卡片变 `[5,1104,36,36]` 只显示 `¥`（不再左溢 30px）；再展开回到 `[14,1078,242,62]`。收起信号取原生 `frame[data-sidebar-collapsed]` + 实测列宽（slot 出口是 `display:contents`，量不到） |

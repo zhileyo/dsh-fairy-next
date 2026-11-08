@@ -3,12 +3,12 @@
 # in one click (entry disable matches by name or by bundlePatchInsertedIds).
 - insert:
     - id: fairy-visual
-      name: 'dsh-fairy-next-visual'
+      name: 'dsh-fairy-visual'
     - id: fairy-startup
-      name: 'dsh-fairy-next-startup'
+      name: 'dsh-fairy-startup'
     - id: balance-meter
-      name: 'dsh-fairy-next-balance'
+      name: 'dsh-fairy-balance'
     - id: fairy-voice
-      name: 'dsh-fairy-next-voice'
+      name: 'dsh-fairy-tts'
     - id: browser-dock
-      name: 'dsh-fairy-next-browser-dock'
+      name: 'dsh-fairy-browser-dock'
