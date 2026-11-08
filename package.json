@@ -15,6 +15,7 @@
     "pack:all": "node tools/pack-all.mjs",
     "version:bump": "node tools/bump-version.mjs",
     "publish:npm": "node tools/publish-npm.mjs",
+    "publish:trust": "node tools/trust-publisher.mjs",
     "probe:setup": "node tools/dev-setup.mjs",
     "probe:web": "pwsh -File tools/dev-start.ps1"
   },

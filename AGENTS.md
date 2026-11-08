@@ -29,6 +29,7 @@
 | `pnpm verify` / `node tools/verify-build.mjs` | 校验客户端 bundle 的四条不变量（见下） |
 | `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，写出 `pack-manifest.json`，校验 `files`/`main`/`exports` 一致与内部版本范围；`--install-test` 再装进临时目录核一遍（要联网）。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
 | `node tools/publish-npm.mjs [--dry-run]` | 按 `pack-manifest.json` 逐条 `npm publish <tgz>`，跳过 registry 上已有的版本；发布只走它，不要按目录 publish |
+| `node tools/trust-publisher.mjs [--check]` | 给七个包登记 GitHub Actions 的 Trusted Publisher（OIDC）；`--check` 只读复查。要先 `npm login --auth-type=web` |
 | `node tools/bump-version.mjs <x.y.z>` | 七包同一版本号：改七份 manifest 与锚包的 `^` 范围，之后 `pnpm install --lockfile-only` |
 | `node tools/build-client.mjs packages/<pkg>` | 只重建一个包 |
 | `node tools/dev-setup.mjs` | 准备隔离实例：`.dsh-dev-home/` + `profiles/fairy-dev` junction → `dev/profile` |
@@ -67,6 +68,10 @@
    否则锚包的依赖范围与发出的版本脱节、装上后会解析到旧包。发布走
    `.github/workflows/publish-npm.yml`（打 `v*` tag 或手动触发，默认 dry-run），发的是
    `pack-all` 打出来的 tarball，不要改回按目录 publish。
+   **发布凭据是 OIDC，不是 token**：七个包各自的 Trusted Publisher 用
+   `node tools/trust-publisher.mjs` 登记；工作流保持 `id-token: write`、不要加回
+   `NODE_AUTH_TOKEN`（它会让 npm 放弃 OIDC）、也不要给 `setup-node` 设 `registry-url`。
+   npm 版本必须 ≥ 11.5.1（Node 24 自带 npm 11；Node 22 的 npm 10 换不到 OIDC 令牌）。
 5. **搞清楚 `lib/client.js` 是产物还是源码。** `visual`、`browser-dock` 有 `src/client/`：
    改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。`balance`、`startup`、
    `voice` **没有** `src/client/`：它们的 `lib/client.js` 就是源码（上游预构建后手工移植成

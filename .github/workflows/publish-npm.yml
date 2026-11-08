@@ -18,7 +18,8 @@ on:
 
 permissions:
   contents: read
-  # provenance 需要把这份构建的 OIDC 身份交给 npm
+  # OIDC：npm 用这份短时身份换发布令牌（Trusted Publisher），
+  # 所以仓库里不存 NPM_TOKEN，也就没有可泄漏、可忘记轮换的东西。
   id-token: write
 
 concurrency:
@@ -30,9 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      # 要么在仓库 Secrets 里放 NPM_TOKEN（细粒度 token，勾 bypass 2FA），
-      # 要么在 npmjs 上给每个包配好 Trusted Publisher 走 OIDC——后者不需要 token。
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # 走 OIDC，不需要任何凭据 secret；七个包的 Trusted Publisher 用
+      # `node tools/trust-publisher.mjs` 一次配好（配完 2 天内要完成首次发布）。
       DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
     steps:
       - uses: actions/checkout@v5
@@ -43,10 +43,18 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          # pnpm 11.28.5 自己要求 Node >= 22.13，所以这里不钉 22.12.0，跟随 22.x 最新
-          node-version: 22
-          registry-url: https://registry.npmjs.org
+          # Trusted publishing 要求 npm >= 11.5.1（Node 22 自带的是 npm 10，
+          # 换不到 OIDC 令牌），Node 24 自带 npm 11，所以这里用 24。
+          # 不设 registry-url：那会在 .npmrc 写一行 _authToken=${NODE_AUTH_TOKEN}，
+          # 而 OIDC 这条路上那个变量必须是空的，否则 npm 会拿它去认证。
+          node-version: 24
           cache: pnpm
+
+      - name: check the npm CLI
+        run: |
+          node --version
+          npm --version
+          npm config get registry
 
       - run: pnpm install --frozen-lockfile
 

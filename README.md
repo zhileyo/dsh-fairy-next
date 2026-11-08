@@ -213,11 +213,25 @@ node tools/pack-all.mjs --install-test           # 本地：打包 + 装一遍�
 node tools/publish-npm.mjs --dry-run             # 本地：走完检查，不上传
 ```
 
-凭据二选一：
+发布凭据走 **OIDC（Trusted Publisher）**，仓库里不存任何 npm token：
 
-- 仓库 Secret `NPM_TOKEN`（npmjs 的 granular token，需要勾上 bypass 2FA）；
-- 或给七个包配 Trusted Publisher（GitHub Actions + `zhileyo/dsh-fairy-next` + `publish-npm.yml`），
-  走 OIDC，不需要 token。两者都没有时工作流会以 `ENEEDAUTH` 失败。
+```powershell
+npm login --auth-type=web                 # 配关系要 npm 账号的写权限
+node tools/trust-publisher.mjs            # 给七个包各登记一条 GitHub Actions 关系
+node tools/trust-publisher.mjs --check    # 复查（只读）
+```
+
+登记的内容是「GitHub Actions · `zhileyo/dsh-fairy-next` · `publish-npm.yml` · 允许 `npm publish`」。
+七个包名字各不相同，npm 的关系也是逐包登记的，所以用脚本循环，别在网页上点七遍。命令幂等。
+**首次发布要在配好之后 2 天内完成**：npm 用第一次成功发布把这条关系绑定到仓库的不可变身份，
+超过 2 天配置就过期作废，得删掉重配。
+
+工作流用 Node 24 自带的 npm 11 —— Trusted publishing 要求 npm ≥ 11.5.1，Node 22 自带 npm 10，
+换不到 OIDC 令牌。也别给 `setup-node` 设 `registry-url`：那会写一行
+`_authToken=${NODE_AUTH_TOKEN}` 到 `.npmrc`，而 OIDC 这条路上那个变量必须为空。
+
+（想临时绕开 OIDC 也能用长期 token：仓库 Secret `NPM_TOKEN` + 工作流里加回
+`NODE_AUTH_TOKEN`。代价是又多一件要轮换的凭据。）
 
 打包前提：
 
