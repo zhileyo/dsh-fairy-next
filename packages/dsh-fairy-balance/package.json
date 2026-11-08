@@ -1,6 +1,6 @@
 {
   "name": "dsh-fairy-balance",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "DeepSeek balance card plus local daily token/cost estimate, rendered in the sidebar footer.",
   "type": "module",
   "main": "./lib/index.js",
@@ -21,7 +21,7 @@
     }
   },
   "dependencies": {
-    "dsh-fairy-contracts": "^0.1.1"
+    "dsh-fairy-contracts": "^0.1.2"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.5"

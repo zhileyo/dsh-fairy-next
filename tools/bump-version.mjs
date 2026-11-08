@@ -65,7 +65,9 @@ function readPackages() {
     .map((entry) => join(PACKAGES_DIR, entry.name))
     .filter((dir) => {
       try {
-        return JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).name?.startsWith('dsh-fairy-next')
+        const name = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).name
+        // 子包去掉了 `next` 前缀（dsh-fairy-visual 等），只认 `next` 会漏掉六个包。
+        return name === 'dsh-fairy-next' || name?.startsWith('dsh-fairy-')
       } catch {
         return false
       }

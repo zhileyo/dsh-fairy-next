@@ -30,7 +30,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-contracts:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-contracts
 
   packages/dsh-fairy-contracts: {}
@@ -41,25 +41,25 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-contracts:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-contracts
 
   packages/dsh-fairy-next:
     dependencies:
       dsh-fairy-balance:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-balance
       dsh-fairy-dock:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-dock
       dsh-fairy-speech:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-speech
       dsh-fairy-startup:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-startup
       dsh-fairy-visual:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-visual
 
   packages/dsh-fairy-speech:
@@ -68,7 +68,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-contracts:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-contracts
       mdast-util-from-markdown:
         specifier: 2.0.3
@@ -86,7 +86,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-contracts:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-contracts
 
   packages/dsh-fairy-visual:
@@ -95,7 +95,7 @@ importers:
         specifier: ~4.0.5
         version: 4.0.5(@deepseek-ai/cordis-plugin-include@1.0.10)(@deepseek-ai/cordis-plugin-loader@1.0.6)
       dsh-fairy-contracts:
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../dsh-fairy-contracts
 
 packages:

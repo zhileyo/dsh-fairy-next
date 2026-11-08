@@ -1,6 +1,6 @@
 {
   "name": "dsh-fairy-visual",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Fairy visual presentation for DSH: HDD theme, big-eye stage, composer dock and semantic marker system.",
   "type": "module",
   "main": "./lib/index.js",
@@ -24,7 +24,7 @@
     }
   },
   "dependencies": {
-    "dsh-fairy-contracts": "^0.1.1"
+    "dsh-fairy-contracts": "^0.1.2"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.5"
