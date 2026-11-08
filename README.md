@@ -155,6 +155,10 @@ main:
 CNB 反向推 GitHub、并用 `git filter-branch` 把 `.cnb.yml` 从 GitHub 历史里摘掉，
 代价是两边 SHA 永不相同，已废弃。）
 
+建仓只需要人工搬一次历史（CNB 云端导入 GitHub 地址，或者在空仓上
+`git push cnb main`）：CNB 得先在分支里读到 `.cnb.yml`，才知道有这条拉取流水线。
+之后就是纯拉取、每次都是快进，**不需要任何 `--force` 推送**。
+
 拉取不需要凭据：GitHub 仓库是公开的。哪天真源改回私有，在 CNB 的密钥仓库里
 补 `GIT_USERNAME` / `GIT_ACCESS_TOKEN`，并取消 `.cnb.yml` 里 `username` /
 `password` 两行的注释即可。
