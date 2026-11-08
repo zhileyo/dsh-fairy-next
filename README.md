@@ -45,7 +45,7 @@
 
 需要 **Node ≥ 22.12**、**pnpm 11**（`packageManager` 已锁 `pnpm@11.28.5`）。
 
-装进一个已有 DSH 有两种方式（插件市场，或用 `pnpm pack` 出的 tarball），产物怎么来见
+装进一个已有 DSH 有两种方式（插件市场，或用 `node tools/pack-all.mjs` 打出的 tarball），产物怎么来见
 [打包与发布](#打包与发布)。想在不碰 `~/.dsh` 的隔离实例里试主题，见 [开发](#开发)。
 
 进入 DSH 后按 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>,</kbd> 打开设置，四类配置都收在
@@ -71,9 +71,10 @@
 一层，`tools/build-all.mjs` 按目录是否存在来分流，细节见 [AGENTS.md](AGENTS.md)。
 
 ```text
-tools/                         构建（build-all / build-client / verify-build）、发布
-                               （pin-versions / prepare-publish）、开发实例（dev-setup /
-                               dev-start.ps1）、验收（cdp/*）、mock（mock-tts）、迁移脚本
+tools/                         构建（build-all / build-client / verify-build）、打包
+                               （pack-all）、发布（pin-versions / prepare-publish）、开发实例
+                               （dev-setup / dev-start.ps1）、验收（cdp/*）、mock
+                               （mock-tts）、迁移脚本
 dev/profile/                   隔离开发实例用的 DSH profile（junction 进 .dsh-dev-home）
 docs/                          REPO / TTS / ADAPTATION / VERIFICATION
 packages/*/test/               各包的纯函数单测
@@ -218,8 +219,11 @@ voice → browser-dock → 锚包；registry 上已存在的 `name@version` 会�
   `micromark-extension-gfm`——缺了它的**宿主半边**会 import 失败，表现为启动日志一行
   `warning: 1 entry did not activate`，其余插件与整页仍正常（0.2.1 对宿主侧失败是告警，
   客户端侧失败才会驻留启动页）。
-- 只想在本地看产物：`node tools/pin-versions.mjs` 之后按包 `pnpm pack --pack-destination
-  .dsh-market-home/pkgs`。
+- 只想在本地看产物：`node tools/pack-all.mjs`（= `pnpm pack`）。它按依赖顺序把七个包打到
+  `.dsh-market-home/pkgs`，并校验三件只有打出来才看得见的事——`files` 里写的条目真的在包里、
+  `main`/`exports` 指向的文件也在包里、锚包声明的范围覆盖得住这一批的版本；加 `--install-test`
+  会把这批 tarball 再真装进临时目录核一遍（这一步要联网，`dsh-fairy-next-voice` 有三个 mdast
+  依赖得从 registry 解析）。
 
 ## 仓库与镜像
 
