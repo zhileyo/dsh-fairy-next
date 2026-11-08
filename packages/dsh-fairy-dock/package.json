@@ -29,7 +29,8 @@
     "node": ">=22.12.0"
   },
   "files": [
-    "lib"
+    "lib",
+    "proxy.cjs"
   ],
   "keywords": [
     "dsh",
