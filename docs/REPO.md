@@ -20,84 +20,65 @@ CNB 侧**没有任何推送 GitHub 的流水线**，GitHub 侧也没有 workflow
 拉取是逐字节镜像，所以**两边 commit SHA 完全一致**、可以直接比对。这也是
 `.cnb.yml` 会出现在 GitHub 仓库里的原因：它就是镜像机制本身。
 
-## 一次性迁移清单
+## 迁移状态
 
-下面这些操作需要 CNB/GitHub 的网页权限，脚本无法代劳。按顺序做一遍即可。
+GitHub 侧已完成：
 
-### 1. GitHub 仓库改名
+- 仓库已改名 `zhileyo/dsh-fairy` → **`zhileyo/dsh-fairy-next`**（旧地址 302 重定向，公开）；
+- `main` 上已经有改成拉取式镜像的提交（`chore(repo): make GitHub the source of
+  truth and CNB a pull mirror`）；它的 SHA 就是 CNB 要对齐的目标，
+  用 `git ls-remote origin main` 现取即可，别照抄文档。
 
-<https://github.com/zhileyo/dsh-fairy> → **Settings → Repository name** 改成
-`dsh-fairy-next`，点 Rename。
+CNB 侧还剩三步，都需要控制台/仓库写权限，脚本代劳不了。
 
-GitHub 会保留旧名字的重定向，所以外部旧链接（`AlwaysFyo/dsh-fairy`、
-`zhileyo/dsh-fairy`）都还能打开。仓库保持 **Public**——私有会让 CNB 的
-pull 流水线需要额外凭据（见文末）。
+### 1. 在 CNB 把仓库改名
 
-### 2. 本地 remote 换向
+`zhileyo/dsh-fairy` → **设置 → 仓库名 / 路径** 改成 `dsh-fairy-next`。
 
-```powershell
-git remote set-url origin https://github.com/zhileyo/dsh-fairy-next.git
-git remote remove github          # 旧的只读镜像 remote，已无用途
-git remote add cnb https://cnb.cool/zhileyo/dsh-fairy-next.git   # 仅一次性对齐用
-```
+CNB 的旧路径 `one-mugen/dsh-fairy` 现在仍然解析到同一个仓库（实测两个地址
+`git ls-remote` 返回同一个 head），改名后同理会有重定向，外部旧链接不会断。
 
-### 3. 把本地推上 GitHub
+### 2. 强制对齐 CNB 历史（一次性）
 
-```powershell
-git push origin main
-```
-
-### 4. 在 CNB 上建好 `zhileyo/dsh-fairy-next`
-
-CNB 控制台里二选一：
-
-- **转移仓库**（如果仓库设置里有这个入口）：把 `one-mugen/dsh-fairy` 转进
-  `zhileyo` 命名空间并改名 `dsh-fairy-next`，历史会一起带过去；
-- **新建空仓库**：在 `zhileyo` 下新建 `dsh-fairy-next`（不要勾选初始化
-  README / .gitignore，保持空仓）。
-
-两种方式之后都需要第 5 步把历史**强制对齐**到 GitHub。
-
-### 5. 强制对齐 CNB 历史（一次性）
-
-旧 CNB 历史里有 `.cnb.yml` 的 filter-branch 提交，与 GitHub 历史不同源，
-所以这次推送必然是非快进：
+CNB 当前 head 是 `2aca0e6`——旧方案（CNB 推 GitHub）的历史，里面有
+`filter-branch` 摘 `.cnb.yml` 的提交，与 GitHub 的新历史不同源，所以这次
+推送必然是非快进：
 
 ```powershell
 git fetch origin main
 git push cnb --force main
 ```
 
-- 若 CNB 的 `main` 是保护分支，先在 **设置 → 分支保护** 里临时放开
+- `cnb` remote 已在本地配好：`https://cnb.cool/zhileyo/dsh-fairy-next.git`
+  （CNB 改名之前它指向 `zhileyo/dsh-fairy.git`，先确认地址再推）。
+- 若 `main` 是 CNB 的保护分支，先在 **设置 → 分支保护** 里临时放开
   「禁止强制推送」，推完再打开。
-- 要确保没有遗留分支/标签也一起对齐，可以用
-  `git push cnb --force --mirror`（会删除 CNB 上 GitHub 没有的 ref，
-  确认无遗留工作后再用）。
+- 只对齐 main、不碰其它分支/标签就保留上面的 `--force main`；要整体镜像用
+  `git push cnb --force --mirror`（会删除 CNB 上 GitHub 没有的 ref）。
 
-推完 `git ls-remote` 两边对比，`main` 的 SHA 必须一致：
+对齐后两边必须同 SHA：
 
 ```powershell
-git ls-remote origin main
-git ls-remote cnb main
+git ls-remote origin main    # GitHub
+git ls-remote cnb main       # CNB
 ```
 
-### 6. 打开 CNB 的自动触发
+### 3. 打开 CNB 自动触发
 
 `zhileyo/dsh-fairy-next` → **设置 → 云原生构建**：
 
-- 勾选 **允许自动触发**（push / 定时任务等事件才会跑流水线）；
-- 若根组织层把「允许定时任务自动触发」关掉了，需要组织管理员放开，否则
-  每小时的拉取不会执行。
+- 勾选 **允许自动触发**（定时任务才跑得起来）；
+- 若根组织把「允许定时任务自动触发」关掉了，要组织管理员放开。
 
-首次 push `.cnb.yml` 之后，定时任务才会被解析注册；可以先去
-**流水线 → 触发构建**（`web_trigger`）手动跑一次验证。
+定时任务要等 `.cnb.yml` 随一次 push 被解析后才注册。之后去
+**流水线 → 触发构建** 点 `mirror-from-github-manual` 手动跑一次，
+确认拉取流水线本身是通的。
 
-### 7. 收尾
+### 4. 收尾
 
-- 旧仓库 `one-mugen/dsh-fairy`：确认不再需要后归档/删除，避免有人往那边推。
 - 密钥仓库 `one-mugen/secrets`：pull 模式读公开仓库不需要凭据，
-  `GITHUB_USERNAME` / `GITHUB_TOKEN` 已经不再被引用。
-- 本仓库的 `.cnb.yml` 不再 `imports` 任何密钥文件。
+  `GITHUB_USERNAME` / `GITHUB_TOKEN` 已无人引用，留着无害。
+- 旧地址 `one-mugen/dsh-fairy` 会重定向到改名后的仓库，不必单独处理。
 
 ## 日常流程
 
