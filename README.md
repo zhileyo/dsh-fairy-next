@@ -169,15 +169,21 @@ WCAG 4.5:1 以上。
 
 ```text
 packages/
-  dsh-fairy-next*/       七个 DSH 插件包（锚包 + 主题/启动/余额/语音/dock/契约）
-  */src/client/          客户端 bundle 源；构建产物落在 */lib/
-  */test/                各包的纯函数单测
-tools/                   构建（build-all / build-client / verify-build）、发布（pin-versions /
-                         prepare-publish）、开发实例（dev-setup / dev-start.ps1）、
-                         验收（cdp/*）、mock（mock-tts）、迁移脚本（port/rename-packages）
-dev/profile/             隔离开发实例用的 DSH profile（junction 进 .dsh-dev-home）
-docs/                    REPO / TTS / ADAPTATION / VERIFICATION
-.cnb.yml                 CNB 侧拉取式镜像流水线（见「仓库与镜像」）
+  dsh-fairy-next/              锚包：skin.json + cordis.patch.yml，没有客户端代码
+  dsh-fairy-next-visual/       有 src/client/，Rollup 构建出 lib/client.js
+  dsh-fairy-next-browser-dock/ 同上，另有 proxy.cjs 作为 stdio 代理
+  dsh-fairy-next-balance/      lib/client.js 即源码（上游预构建后移植），build-all 跳过
+  dsh-fairy-next-startup/      同上
+  dsh-fairy-next-voice/        同上；宿主半边 + 客户端半边
+  dsh-fairy-next-contracts/    纯 ESM 契约（.js / .cjs / .d.ts），不打包
+  */test/                      各包的纯函数单测
+tools/                         构建（build-all / build-client / verify-build）、发布
+                               （pin-versions / prepare-publish）、开发实例（dev-setup /
+                               dev-start.ps1）、验收（cdp/*）、mock（mock-tts）、迁移
+                               脚本（port-packages / rename-packages）
+dev/profile/                   隔离开发实例用的 DSH profile（junction 进 .dsh-dev-home）
+docs/                          REPO / TTS / ADAPTATION / VERIFICATION
+.cnb.yml                       CNB 侧拉取式镜像流水线（见「仓库与镜像」）
 ```
 
 `node_modules/`、`.dsh-dev-home/`、`.dsh-market-home/`、`.pnpm-store/` 都是本地产物，已 gitignore。
