@@ -218,41 +218,45 @@ node tools/pack-all.mjs --install-test           # 本地：打包 + 装一遍�
 node tools/publish-npm.mjs --dry-run             # 本地：走完检查，不上传
 ```
 
-稳态的发布凭据是 **OIDC（Trusted Publisher）**，仓库里不需要长期 token。
-这些关系**只能在 npm 网页上逐包点**，因为本仓库账号开了 2FA（`auth-and-writes`），而
-`npm trust` 的创建路径不送 OTP，`create` 与 `list` 一律 `E403`；换成绕过 2FA 的 granular token
-也不行，registry 会把话说明白：`Granular access tokens that bypass two-factor authentication may
-not perform this action`（[原因](https://gh.io/npm-gat-bypass2fa-deprecation)）。
+稳态的发布凭据是 **OIDC（Trusted Publisher）**，仓库里不需要任何长期 token：工作流用自己的
+`id-token: write` 身份向 registry 换一枚短时令牌。七个包是独立名字，关系也是逐包登记的，
+漏配的那个会以 `ENEEDAUTH` 失败、看起来像整个工作流坏了 —— 所以用工具配，别手点七遍：
 
-七个包各点一次，填同样的三项：
+```powershell
+node tools/trust-publisher.mjs            # 七个包一次配好（要 npm >= 11.15 的 npm trust）
+node tools/trust-publisher.mjs --check    # 只读现状
+```
 
-- 包页 → Settings → Trusted Publisher → GitHub Actions
-- Repository：`zhileyo/dsh-fairy-next`
-- Workflow filename：`publish-npm.yml`
-- 勾上允许 `npm publish`
+账号开了 2FA，所以命令会先打印一条 `https://www.npmjs.com/auth/cli/<authId>` 链接，点开确认即可
+（链接约 5 分钟失效）。第一包的授权页上勾「Skip two-factor authentication for the next 5 minutes」
+能让后面六个直接返回 201；但别先开一堆窗口再逐个点 —— 那段时间 npm 会把之前挂起的 authId
+全部作废。绕过 2FA 的 granular token（`npm_…`）走不了这条路，registry 的原话是
+`Granular access tokens that bypass two-factor authentication may not perform this action`
+（[原因](https://gh.io/npm-gat-bypass2fa-deprecation)）。
 
-`node tools/trust-publisher.mjs --check` 只对没有 2FA 的账号可用；本账号读也会 403。
 配好之后**要在 2 天内完成一次发布**：npm 用第一次成功发布把关系绑定到仓库的不可变身份，
-超时作废，只能删掉重配。
+超时作废、只能删掉重配。现在七条都生效了（`permissions: publish, stage publish`）。
 
 工作流用 Node 24 自带的 npm 11 —— Trusted publishing 要求 npm ≥ 11.5.1，Node 22 自带 npm 10，
 换不到 OIDC 令牌。也别给 `setup-node` 设 `registry-url`：那会写一行
 `_authToken=${NODE_AUTH_TOKEN}` 到 `.npmrc`，而 OIDC 这条路上那个变量必须为空。
 
-**首版只能用 token 引导一次，这不是可选项**：Trusted Publisher 只能挂在已经存在的包上，
-而上面那两条限制把 CLI 与 token 两条路都堵死了。`0.1.0` 就是这么发的：
+**首版靠 token 引导，这是一次性的历史包袱**：Trusted Publisher 只能挂在已经存在的包上，
+所以 `0.1.0` 是这么发的：
 
 1. npm 网页上建一个 granular token（Packages 读写、允许绕过 2FA、有效期压到几天），
    `gh secret set NPM_TOKEN --repo zhileyo/dsh-fairy-next`；
-2. 手动跑工作流，`dry_run=false` + `bootstrap_token=true` —— 这一步把 token 写进
-   runner 的 `.npmrc`，再把七个 `0.1.0` 发出去（已存在的版本会自动跳过，可重复跑）；
-3. 包存在之后，回到上面那段网页步骤给七个包建 Trusted Publisher；
-4. 删掉 secret，以及工作流里的 `authenticate with the bootstrap token` 步骤和
-   `bootstrap_token` 输入。之后打 `v*` tag 就只走 OIDC。
+2. 手动跑工作流，`dry_run=false` + `bootstrap_token=true` —— 把 token 写进 runner 的
+   `.npmrc`，再把七个 `0.1.0` 发出去（已存在的版本会自动跳过，可重复跑）；
+3. 包存在之后给七个包建 Trusted Publisher。
+
+这三步现在都拆掉了：`0.1.2` 之后 secret、`bootstrap_token` 输入和那个认证步骤都已删除，
+工作流里还加了一条断言，发现 `.npmrc` 里冒出 `_authToken` 就直接失败 —— 否则 OIDC 会被
+静默绕过，发布身份不再来自工作流。
 
 打包前提：
 
-- 七个包**同一个版本号**（当前全部 `0.1.0`），一起发。改版本只走
+- 七个包**同一个版本号**（当前全部 `0.1.2`），一起发。改版本只走
   `node tools/bump-version.mjs <x.y.z>`：它同时改七份 manifest 与锚包的 `^` 范围，之后记得
   `pnpm install --lockfile-only` 并把锁文件一起提交（importers 记的是依赖声明）。锚包声明的范围
   必须覆盖得住这一批发出的版本，否则装上后内部依赖会解析到旧包（原因见

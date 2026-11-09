@@ -6,10 +6,9 @@ name: publish-npm
 # 发的是 `pack-all` 打出来的 tarball，不是包目录。这样本地
 # `node tools/pack-all.mjs --install-test` 验过的字节，就是 registry 上收到的字节。
 #
-# 首次引导：Trusted Publisher 只能挂在已经存在的包上，而账号开了 2FA
-# （auth-and-writes）时 `npm trust` 的创建路径不送 OTP，CLI 一律 E403。
-# 所以首版要用仓库里的 NPM_TOKEN secret 发一次，发完在网页上给七个包建
-# Trusted Publisher，再删掉 secret 与下面那个引导步骤——之后只剩 OIDC。
+# 身份只走 OIDC（Trusted Publisher）：仓库里没有任何 npm 凭据 secret，也就
+# 没有可泄漏、可忘记轮换的东西。七个包的关系用 `node tools/trust-publisher.mjs`
+# 一次配好（每包一条，漏配的那个会在发布时以 ENEEDAUTH 失败）。
 
 on:
   push:
@@ -20,15 +19,10 @@ on:
         description: 只跑 npm publish --dry-run，不真的发布
         type: boolean
         default: true
-      bootstrap_token:
-        description: 用仓库 secret NPM_TOKEN 发首版（建好 Trusted Publisher 后不要再开）
-        type: boolean
-        default: false
 
 permissions:
   contents: read
-  # OIDC：npm 用这份短时身份换发布令牌（Trusted Publisher），
-  # 所以仓库里不存 NPM_TOKEN，也就没有可泄漏、可忘记轮换的东西。
+  # OIDC：npm 用这份短时身份换发布令牌（Trusted Publisher）。
   id-token: write
 
 concurrency:
@@ -40,8 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      # 走 OIDC，不需要任何凭据 secret；七个包的 Trusted Publisher 用
-      # `node tools/trust-publisher.mjs` 一次配好（配完 2 天内要完成首次发布）。
       DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
     steps:
       - uses: actions/checkout@v5
@@ -65,19 +57,15 @@ jobs:
           npm --version
           npm config get registry
 
-      # 只在首版引导时把 token 写进 .npmrc。平时这一步不跑，.npmrc 里没有
-      # 任何 _authToken，npm 才会去换 OIDC 令牌。
-      - name: authenticate with the bootstrap token
-        if: inputs.bootstrap_token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # .npmrc 里必须没有任何 _authToken，npm 才会去换 OIDC 令牌。多一层断言，
+      # 免得将来有人为了图快又把 token 塞回 secret + .npmrc。
+      - name: assert there is no static npm token
         run: |
-          if [[ -z "$NPM_TOKEN" ]]; then
-            echo "::error::bootstrap_token 打开了，但仓库里没有 NPM_TOKEN secret"
+          if npm config get '//registry.npmjs.org/:_authToken' | grep -qv '^undefined$'; then
+            echo "::error::.npmrc 里出现了 _authToken，OIDC 会被绕过，发布身份不再来自工作流"
             exit 1
           fi
-          npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN" --location=user
-          npm whoami
+          echo "no static token configured"
 
       - run: pnpm install --frozen-lockfile
 

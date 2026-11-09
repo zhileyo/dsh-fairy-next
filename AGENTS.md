@@ -33,7 +33,7 @@
 | `pnpm verify` / `node tools/verify-build.mjs` | 校验客户端 bundle 的四条不变量（见下） |
 | `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，写出 `pack-manifest.json`，校验 `files`/`main`/`exports` 一致与内部版本范围；`--install-test` 再装进临时目录核一遍（要联网）。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
 | `node tools/publish-npm.mjs [--dry-run]` | 按 `pack-manifest.json` 逐条 `npm publish <tgz>`，跳过 registry 上已有的版本；发布只走它，不要按目录 publish |
-| `node tools/trust-publisher.mjs [--check]` | 批量登记 Trusted Publisher（OIDC）。**本仓库用不了**：账号开了 2FA，`npm trust` 不送 OTP，`create`/`list` 都 403，只能去 npmjs.com 网页点；脚本留给无 2FA 账号 |
+| `node tools/trust-publisher.mjs [--check]` | 批量登记 Trusted Publisher（OIDC）。账号开了 2FA，要按提示点一条 `https://www.npmjs.com/auth/cli/<authId>` 授权链接（约 5 分钟失效） |
 | `node tools/bump-version.mjs <x.y.z>` | 七包同一版本号：改七份 manifest 与锚包的 `^` 范围，之后 `pnpm install --lockfile-only` |
 | `node tools/build-client.mjs packages/<pkg>` | 只重建一个包 |
 | `node tools/dev-setup.mjs` | 准备隔离实例：`.dsh-dev-home/` + `profiles/fairy-dev` junction → `dev/profile` |
@@ -75,13 +75,16 @@
    **稳态的发布凭据是 OIDC，不是 token**：工作流保持 `id-token: write`、不要加回
    `NODE_AUTH_TOKEN`（它会让 npm 放弃 OIDC）、也不要给 `setup-node` 设 `registry-url`。
    npm 版本必须 ≥ 11.5.1（Node 24 自带 npm 11；Node 22 的 npm 10 换不到 OIDC 令牌）。
-   Trusted Publisher 关系**只能在 npmjs.com 的包设置页点**：本账号开了 2FA，
-   `npm trust` 的创建路径不送 OTP（`create`/`list` 都 `E403`），绕过 2FA 的 granular token
-   也被 registry 明确拒绝（`Granular access tokens that bypass two-factor authentication may not
-   perform this action`）。`tools/trust-publisher.mjs` 只对无 2FA 账号有用。
-   **新包的首版例外**：关系只能挂在已存在的包上，所以首版要用仓库 Secret `NPM_TOKEN` +
-   工作流输入 `bootstrap_token=true` 发一次。发完立刻删掉 secret、那个引导步骤和输入——
-   留着它等于把 OIDC 换成长期 token。
+   Trusted Publisher 关系用 `node tools/trust-publisher.mjs` 配（npm ≥ 11.15 的 `npm trust`，
+   `--check` 只读）。账号开了 2FA，所以命令会要求点一条
+   `https://www.npmjs.com/auth/cli/<authId>` 授权链接（约 5 分钟失效）；授权页勾
+   「Skip two-factor authentication for the next 5 minutes」能让后面几个包直接 201，但那期间
+   npm 会作废所有挂起的 authId，所以别先开一堆窗口再逐个点。绕过 2FA 的 granular token
+   （`npm_…`）走不了这条路，registry 原话是 `Granular access tokens that bypass two-factor
+   authentication may not perform this action`。七个关系现在都已生效。
+   **历史包袱**：关系只能挂在已存在的包上，所以 `0.1.0` 首版是用仓库 Secret `NPM_TOKEN` +
+   输入 `bootstrap_token=true` 发的；这两样连同工作流里的认证步骤都已删除，别再走回头路。
+   工作流现在有一条断言：`.npmrc` 里一旦出现 `_authToken` 就失败，防止 OIDC 被静默绕过。
 5. **搞清楚 `lib/client.js` 是产物还是源码。** `dsh-fairy-visual`、`dsh-fairy-dock`
    有 `src/client/`：改源，然后 `tools/build-all.mjs` 重建，直接改 `lib` 会被下次构建覆盖。
    `dsh-fairy-balance`、`dsh-fairy-startup`、`dsh-fairy-speech` **没有** `src/client/`：它们的
