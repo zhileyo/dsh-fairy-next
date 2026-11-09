@@ -21,7 +21,7 @@ on:
         default: true
 
 permissions:
-  contents: read
+  contents: write # 打 tag 的那次要建 GitHub Release（附七个 tarball）
   # OIDC：npm 用这份短时身份换发布令牌（Trusted Publisher）。
   id-token: write
 
@@ -105,3 +105,21 @@ jobs:
           else
             node tools/publish-npm.mjs
           fi
+
+      # npm 上的版本与 tag 是两套账：registry 有了不代表仓库有 release 页。
+      # 打的 tarball 就是刚发出去的那七个字节，挂上去让不装 npm 的人也能直接下。
+      - name: create the GitHub release
+        if: github.ref_type == 'tag' && env.DRY_RUN != 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "release $GITHUB_REF_NAME 已存在，跳过"
+            exit 0
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            .dsh-market-home/pkgs/*.tgz \
+            --title "dsh-fairy-next $GITHUB_REF_NAME" \
+            --generate-notes
