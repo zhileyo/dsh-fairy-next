@@ -71,7 +71,9 @@
    （它改七份 manifest 与锚包的 `^` 范围），随后 `pnpm install --lockfile-only` 并一起提交，
    否则锚包的依赖范围与发出的版本脱节、装上后会解析到旧包。发布走
    `.github/workflows/publish-npm.yml`（打 `v*` tag 或手动触发，默认 dry-run），发的是
-   `pack-all` 打出来的 tarball，不要改回按目录 publish。
+   `pack-all` 打出来的 tarball，不要改回按目录 publish。打 tag 的那次发布结束后会自动建
+   GitHub Release（附七个 tarball，已存在则跳过），所以 `permissions` 里要有
+   `contents: write`——别为了「最小权限」把它删回 `read`，否则发布成功、Release 步骤 403。
    **稳态的发布凭据是 OIDC，不是 token**：工作流保持 `id-token: write`、不要加回
    `NODE_AUTH_TOKEN`（它会让 npm 放弃 OIDC）、也不要给 `setup-node` 设 `registry-url`。
    npm 版本必须 ≥ 11.5.1（Node 24 自带 npm 11；Node 22 的 npm 10 换不到 OIDC 令牌）。

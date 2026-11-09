@@ -201,17 +201,21 @@ node tools/mock-tts.mjs --port=9881              # 假 TTS，验完整语音链
 **打 tag 就发**，也可以在 GitHub 页面手动跑一次（默认只 dry-run）。
 
 ```powershell
-git tag v0.1.0; git push origin v0.1.0            # tag 跟着锚包版本走，如 v0.1.0
+git tag v0.1.3; git push origin v0.1.3            # tag 跟着锚包版本走，如 v0.1.3
 gh workflow run publish-npm --repo zhileyo/dsh-fairy-next   # 手动：默认 dry_run=true
 gh workflow run publish-npm --repo zhileyo/dsh-fairy-next -f dry_run=false   # 真发
 ```
 
 工作流顺序：`pnpm install --frozen-lockfile` → `prepare-publish.mjs --dry`（先审计每个包会发
 哪些文件）→ `pin-versions.mjs` → `build-all` → `verify-build` → `pack-all.mjs`（打出七个 tarball
-和 `pack-manifest.json`）→ `publish-npm.mjs --dry-run` 或 `publish-npm.mjs`。发的是**这一步打出来
+和 `pack-manifest.json`）→ `publish-npm.mjs --dry-run` 或 `publish-npm.mjs` → 建 GitHub Release
+（只在那次是打 tag 时）。发的是**这一步打出来
 的 tarball**，不是包目录：本地验过的字节就是 registry 收到的字节。顺序是 contracts → visual →
 startup → balance → speech → dock → 锚包（依赖在前）；registry 上已存在的 `name@version`
 直接跳过，所以重复触发是安全的。
+
+Release 页会把刚发出去的七个 tarball 挂成附件，已经存在的 tag 直接跳过；所以不装 npm 的人也能
+从 [Releases](https://github.com/zhileyo/dsh-fairy-next/releases) 直接下。
 
 ```powershell
 node tools/pack-all.mjs --install-test           # 本地：打包 + 装一遍核验
