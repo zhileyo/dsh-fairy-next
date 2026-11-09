@@ -18,7 +18,8 @@
  * 范围。发布脚本按这份清单发，不再回到目录里重读 manifest。
  */
 import { existsSync } from 'node:fs'
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { copyFile, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -113,8 +114,45 @@ const problems = []
 const rows = []
 const records = []
 
+// 单 tarball 分发：锚包用 `bundleDependencies` 把六个子包内联进自己的 tarball，
+// 这样用户只装一个包、市场里只有一条记录，而子包依然是各自独立的 DSH 插件
+// （宿主 app-boot 的 dependencyClosure 会从 bundle 目录出发解析依赖闭包，
+// 所以花名册按包名仍能找到内联在 node_modules 里的真身）。
+//
+// npm 只内联「pack 那一刻真的躺在包目录 node_modules 里」的包，所以先按已打好的
+// tarball 文件清单把子包复制进去，pack 完再删。用文件清单而不是整目录复制，是为了
+// 让内联副本与线上独立发布的副本是同一批文件（src、test、docs 不会混进来）。
+const packedFiles = new Map()
+const bundledNames = (manifest) => [...(manifest.bundleDependencies ?? manifest.bundledDependencies ?? [])]
+
+const stageBundled = async (anchor, deps, stagedRoot) => {
+	await rm(stagedRoot, { recursive: true, force: true })
+	for (const dep of deps) {
+		const source = packedFiles.get(dep)
+		if (source === undefined) {
+			problems.push(`${anchor}: bundleDependencies 里的 ${dep} 还没打成 tarball`)
+			continue
+		}
+		for (const file of source.files) {
+			const to = join(stagedRoot, dep, file)
+			await mkdir(dirname(to), { recursive: true })
+			await copyFile(join(repo, 'packages', source.dir, file), to)
+		}
+	}
+}
+
 for (const pkg of ordered) {
 	const { name, version } = pkg.manifest
+	const bundled = bundledNames(pkg.manifest)
+	const stagedRoot = join(repo, 'packages', pkg.dir, 'node_modules')
+	if (bundled.length > 0) {
+		for (const dep of bundled) {
+			if (!Object.hasOwn(pkg.manifest.dependencies ?? {}, dep) && !Object.hasOwn(pkg.manifest.optionalDependencies ?? {}, dep)) {
+				problems.push(`${name}: bundleDependencies 里的 ${dep} 没写进 dependencies`)
+			}
+		}
+		await stageBundled(name, bundled, stagedRoot)
+	}
 
 	let info
 	try {
@@ -124,9 +162,19 @@ for (const pkg of ordered) {
 		problems.push(`${name}@${version}: npm pack 失败 —— ${error.message}`)
 		rows.push({ label: `${name}@${version}`, size: '-', files: '-', deps: 'pack failed' })
 		continue
+	} finally {
+		if (bundled.length > 0) await rm(stagedRoot, { recursive: true, force: true })
 	}
 
 	const paths = info.files.map((file) => file.path)
+	packedFiles.set(name, { dir: pkg.dir, files: paths })
+
+	// 声明了内联就必须真的内联：漏了的话装上去只剩一个空壳锚包。
+	for (const dep of bundled) {
+		if (!paths.some((path) => path.startsWith(`node_modules/${dep}/`))) {
+			problems.push(`${name}@${version}: bundleDependencies 里的 ${dep} 没被打进 tarball`)
+		}
+	}
 	const expectName = `${name}-${version}.tgz`
 	if (info.filename !== expectName) problems.push(`${name}@${version}: tarball 名叫 ${info.filename}，期望 ${expectName}`)
 
@@ -214,6 +262,35 @@ if (argv.includes('--install-test')) {
 				if (!existsSync(join(dir, clean))) problems.push(`install test: ${name} 的 ${entry} 装上后不存在`)
 			}
 		}
+		// 内联包必须能从锚包里按名字解析出来：宿主 app-boot 就是从 bundle 目录出发
+		// 解析依赖闭包，再按花名册里的包名去查。
+		const anchor = ordered.find((pkg) => bundledNames(pkg.manifest).length > 0)
+		if (anchor !== undefined) {
+			const anchorDir = join(scratch, 'node_modules', anchor.manifest.name)
+			if (existsSync(anchorDir)) {
+				const requireFromAnchor = createRequire(join(anchorDir, 'lib', 'index.js'))
+				for (const dep of bundledNames(anchor.manifest)) {
+					let entry
+					try {
+						entry = requireFromAnchor.resolve(dep)
+					} catch {
+						problems.push(`install test: 从锚包解析不到内联的 ${dep}`)
+						continue
+					}
+					// 内联包自己的第三方依赖（speech 的 mdast 三件）也必须装到能用。
+					const requireFromDep = createRequire(entry)
+					for (const name of Object.keys(byName.get(dep)?.manifest.dependencies ?? {})) {
+						if (byName.has(name)) continue
+						try {
+							requireFromDep.resolve(name)
+						} catch {
+							problems.push(`install test: 内联的 ${dep} 解析不到 ${name}`)
+						}
+					}
+				}
+			}
+		}
+
 		const extra = (await readdir(join(scratch, 'node_modules'))).filter((entry) => !entry.startsWith('.') && !entry.startsWith('@')).length
 		installSummary = `install test: ${ordered.length} package(s) + ${extra - ordered.length} transitive dep(s) installed → ${scratch}`
 	}

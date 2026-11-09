@@ -51,7 +51,7 @@ for (const dir of packages) {
 
   // Keep a stable key order so the manifest diff stays readable.
   const ordered = {}
-  for (const key of ['name', 'version', 'description', 'type', 'main', 'icon', 'exports', 'dsh', 'dependencies', 'peerDependencies', 'engines', 'files', 'keywords', 'author', 'license', 'homepage', 'repository', 'bugs', 'publishConfig']) {
+  for (const key of ['name', 'version', 'description', 'type', 'main', 'icon', 'exports', 'dsh', 'dependencies', 'bundleDependencies', 'peerDependencies', 'engines', 'files', 'keywords', 'author', 'license', 'homepage', 'repository', 'bugs', 'publishConfig']) {
     if (next[key] !== undefined) ordered[key] = next[key]
   }
   for (const [key, value] of Object.entries(next)) {

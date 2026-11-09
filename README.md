@@ -46,7 +46,8 @@
 需要 **Node ≥ 22.12**、**pnpm 11**（`packageManager` 已锁 `pnpm@11.28.5`）。
 
 装进一个已有 DSH 有两种方式（插件市场，或用 `node tools/pack-all.mjs` 打出的 tarball），产物怎么来见
-[打包与发布](#打包与发布)。想在不碰 `~/.dsh` 的隔离实例里试主题，见 [开发](#开发)。
+[打包与发布](#打包与发布)。**npm 上只需要一个包名**：`dsh-fairy-next` 的 tarball 里内联了六个子包
+（见 [包与目录](#包与目录)），装它一个就把整套插件装齐。想在不碰 `~/.dsh` 的隔离实例里试主题，见 [开发](#开发)。
 
 进入 DSH 后按 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>,</kbd> 打开设置，四类配置都收在
 「Fairy 控制台」一页（见 [配置](#配置)）。**未登录时打开的是「开始使用」引导页而不是设置面板。**
@@ -56,9 +57,15 @@
 市场只需要安装 `packages/dsh-fairy-next`（锚包）：它的 `skin.json` 让宿主把它识别成主题，
 `cordis.patch.yml` 一次插入下面五条插件行，市场据此一键停/起整组。
 
+锚包的 tarball **自带这六个子包**（`bundleDependencies`）：装 `dsh-fairy-next` 之后，六个包躺在
+`node_modules/dsh-fairy-next/node_modules/` 里，不会再被单独解析一次。宿主是按 bundle 的依赖闭包
+解析包名的（`dsh-app-boot` 的 `dependencyClosure()`），所以花名册里那五行照旧按 `dsh-fairy-visual`
+这类名字命中内联副本 —— 一份 tarball、七个插件，两件事并不冲突。子包同时仍各自发布到 npm，
+想只装某一个（比如不要 dock）时的老办法照旧可用。
+
 | 包 | 职责 | 客户端产物 |
 | --- | --- | --- |
-| `dsh-fairy-next` | 锚包：市场安装入口，只有声明文件 | — |
+| `dsh-fairy-next` | 锚包：安装入口，声明文件 + 内联的六个子包 | — |
 | `dsh-fairy-visual` | 主题主体（背景、舞台、输入坞、设置页） | `src/client/` → rollup |
 | `dsh-fairy-startup` | 新 document 落到空白会话页 | `lib/client.js` 即源码 |
 | `dsh-fairy-balance` | 余额卡与今日 token 估算 | `lib/client.js` 即源码 |
@@ -268,11 +275,15 @@ node tools/trust-publisher.mjs --check    # 只读现状
 - `dsh-fairy-speech` 还要装 `mdast-util-from-markdown` / `mdast-util-gfm` /
   `micromark-extension-gfm`——缺了它的**宿主半边**会 import 失败，表现为启动日志一行
   `warning: 1 entry did not activate`，其余插件与整页仍正常（0.2.1 对宿主侧失败是告警，
-  客户端侧失败才会驻留启动页）。
+  客户端侧失败才会驻留启动页）。`bundleDependencies` 只内联子包本身、**不会**替子包装第三方依赖，
+  所以这三件由锚包直接声明（锚包是分发单位，缺了它整套装不上就用）；它们的三份版本号要和
+  `packages/dsh-fairy-speech/package.json` 保持一致。
 - `pack-all` 按依赖顺序把七个包打到 `.dsh-market-home/pkgs`，并校验三件只有打出来才看得见的
   事——`files` 里写的条目真的在包里、`main`/`exports` 指向的文件也在包里、锚包声明的范围覆盖
-  得住这一批的版本；`--install-test` 再把这批 tarball 真装进临时目录核一遍（要联网，
-  `dsh-fairy-speech` 有三个 mdast 依赖得从 registry 解析）。别用 `pnpm pack`：那是 pnpm
+  得住这一批的版本；声明了 `bundleDependencies` 的包还会把子包按**已打好 tarball 的文件清单**
+  复制进自己的 `node_modules` 再 pack（打完就删），并核对每个子包真的进了 tarball。
+  `--install-test` 再把这批 tarball 真装进临时目录核一遍：版本、`main`/`exports`、以及从锚包
+  按名字解析内联子包、从内联子包解析它自己的第三方依赖（要联网）。别用 `pnpm pack`：那是 pnpm
   自带的“把当前目录打成包”，会把整个 workspace 打成 `dsh-fairy-next-workspace-0.0.0.tgz`。
 
 
@@ -316,6 +327,8 @@ CNB 得先在分支里读到 `.cnb.yml`，才知道有这条拉取流水线。�
 - [x] 会话切换 glitch（`dsh-hdd-session-transition`）在 0.2.1 的复验
 - [x] Voice 端到端链路（mock TTS 已验证；换成真实模型只需改 `DSH_FAIRY_TTS_URL`）
 - [x] 市场安装路径（tarball 装进全新 `DSH_HOME`，五个插件全部就位）
+- [x] 单包分发（只装锚包 tarball，六个子包内联在它的 `node_modules/`；`--dump-config` 五行齐、
+      宿主侧四个插件 `apply` 成功、五行客户端 bundle 都被 `/plugins/??` 服务返回 200）
 - [x] 中英 i18n 与 `prefers-reduced-motion` 的逐项回归
 - [x] 三个 UI 缺陷：眼睛大小滑条不生效、输入框选不了模型、头部控件位置/间距
 - [x] 市场式一键停/起（禁用锚包插入的五个 id → 全部下线；恢复后重新上线）

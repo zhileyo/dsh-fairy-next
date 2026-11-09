@@ -31,7 +31,7 @@
 | `pnpm install` | 装根工具链与七个 workspace 包 |
 | `pnpm build` / `node tools/build-all.mjs` | 重建**有 `src/client`** 的包的 `lib/client.js`；其余保留上游预构建产物 |
 | `pnpm verify` / `node tools/verify-build.mjs` | 校验客户端 bundle 的四条不变量（见下） |
-| `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，写出 `pack-manifest.json`，校验 `files`/`main`/`exports` 一致与内部版本范围；`--install-test` 再装进临时目录核一遍（要联网）。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
+| `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，写出 `pack-manifest.json`，校验 `files`/`main`/`exports` 一致与内部版本范围；对声明了 `bundleDependencies` 的锚包，先把子包按已打好 tarball 的文件清单复制进它的 `node_modules` 再 pack（打完删除），并核对每个子包真在 tarball 里；`--install-test` 再装进临时目录核一遍（要联网），还会从锚包按名字解析内联子包、从内联子包解析其第三方依赖。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
 | `node tools/publish-npm.mjs [--dry-run]` | 按 `pack-manifest.json` 逐条 `npm publish <tgz>`，跳过 registry 上已有的版本；发布只走它，不要按目录 publish |
 | `node tools/trust-publisher.mjs [--check]` | 批量登记 Trusted Publisher（OIDC）。账号开了 2FA，要按提示点一条 `https://www.npmjs.com/auth/cli/<authId>` 授权链接（约 5 分钟失效） |
 | `node tools/bump-version.mjs <x.y.z>` | 七包同一版本号：改七份 manifest 与锚包的 `^` 范围，之后 `pnpm install --lockfile-only` |
@@ -67,7 +67,14 @@
    GitHub 的流水线——那会和拉取形成回环。改动后要重新解析定时任务（只有 `.cnb.yml`
    变更的那次 push 才会刷新）。
 3. **只往 GitHub `origin` 推。** CNB 是只读镜像；`git push cnb` 只用于新仓库首次 bootstrap。
-4. **七个包同一个版本号、一起发布。** 改版本只走 `node tools/bump-version.mjs <x.y.z>`
+4. **七个包同一个版本号、一起发布，但用户只装一个。** 锚包用 `bundleDependencies` 把六个子包
+   内联进自己的 tarball（宿主 `dsh-app-boot` 的 `dependencyClosure()` 会从 bundle 目录解析依赖
+   闭包，所以花名册按包名仍能找到内联副本），六份子包 tarball 仍然各自发布。这条内联是
+   `pack-all` 做的：它把子包按**已打好 tarball 的文件清单**复制进锚包的 `node_modules` 再 pack，
+   打完删掉——手写 `npm publish packages/dsh-fairy-next` 会发出一个没有内联子包的空壳，别那么干。
+   `bundleDependencies` 不替子包装第三方依赖（speech 的三个 mdast 包因此由锚包直接声明），
+   新增子包依赖时要同步到锚包。
+   改版本只走 `node tools/bump-version.mjs <x.y.z>`
    （它改七份 manifest 与锚包的 `^` 范围），随后 `pnpm install --lockfile-only` 并一起提交，
    否则锚包的依赖范围与发出的版本脱节、装上后会解析到旧包。发布走
    `.github/workflows/publish-npm.yml`（打 `v*` tag 或手动触发，默认 dry-run），发的是
