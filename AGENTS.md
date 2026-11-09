@@ -31,7 +31,7 @@
 | `pnpm install` | 装根工具链与七个 workspace 包 |
 | `pnpm build` / `node tools/build-all.mjs` | 重建**有 `src/client`** 的包的 `lib/client.js`；其余保留上游预构建产物 |
 | `pnpm verify` / `node tools/verify-build.mjs` | 校验客户端 bundle 的四条不变量（见下） |
-| `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，写出 `pack-manifest.json`，校验 `files`/`main`/`exports` 一致与内部版本范围；对声明了 `bundleDependencies` 的锚包，先把子包按已打好 tarball 的文件清单复制进它的 `node_modules` 再 pack（打完删除），并核对每个子包真在 tarball 里；`--install-test` 再装进临时目录核一遍（要联网），还会从锚包按名字解析内联子包、从内联子包解析其第三方依赖。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
+| `pnpm run pack:all` / `node tools/pack-all.mjs [--install-test]` | 按依赖顺序把七个包打成 tarball 到 `.dsh-market-home/pkgs`，写出 `pack-manifest.json`，校验 `files`/`main`/`exports` 一致与内部版本范围；对声明了 `bundleDependencies` 的锚包，先把子包按已打好 tarball 的文件清单复制进它的 `node_modules` 再 pack（打完删除），并核对每个子包真在 tarball 里；`--install-test` 再以 `--offline` 装进临时目录核一遍，从锚包按名字解析内联子包，并断言顶层只有这七个包（第三方依赖不为空即失败）。注意 `pnpm pack` 是 pnpm 自带命令，不是这个脚本 |
 | `node tools/publish-npm.mjs [--dry-run]` | 按 `pack-manifest.json` 逐条 `npm publish <tgz>`，跳过 registry 上已有的版本；发布只走它，不要按目录 publish |
 | `node tools/trust-publisher.mjs [--check]` | 批量登记 Trusted Publisher（OIDC）。账号开了 2FA，要按提示点一条 `https://www.npmjs.com/auth/cli/<authId>` 授权链接（约 5 分钟失效） |
 | `node tools/bump-version.mjs <x.y.z>` | 七包同一版本号：改七份 manifest 与锚包的 `^` 范围，之后 `pnpm install --lockfile-only` |
@@ -72,8 +72,11 @@
    闭包，所以花名册按包名仍能找到内联副本），六份子包 tarball 仍然各自发布。这条内联是
    `pack-all` 做的：它把子包按**已打好 tarball 的文件清单**复制进锚包的 `node_modules` 再 pack，
    打完删掉——手写 `npm publish packages/dsh-fairy-next` 会发出一个没有内联子包的空壳，别那么干。
-   `bundleDependencies` 不替子包装第三方依赖（speech 的三个 mdast 包因此由锚包直接声明），
-   新增子包依赖时要同步到锚包。
+   **整套不允许有第三方运行时依赖**：七个包的 `dependencies` 只能指向套件内的包（宿主提供的
+   `@deepseek-ai/cordis` 走 `peerDependencies`，不算）。理由同上——内联进来的子包没人替它解析
+   第三方依赖，一加就等于「装一个包」失效。需要某个库时先看能不能自己写（朗读用的 markdown
+   提炼器就是这么收回来的，见 `packages/dsh-fairy-speech/lib/server/markdown-speech.js`），
+   守住 `packages/dsh-fairy-next/test/bundle.test.js` 与 `pack-all --install-test` 的两条断言。
    改版本只走 `node tools/bump-version.mjs <x.y.z>`
    （它改七份 manifest 与锚包的 `^` 范围），随后 `pnpm install --lockfile-only` 并一起提交，
    否则锚包的依赖范围与发出的版本脱节、装上后会解析到旧包。发布走

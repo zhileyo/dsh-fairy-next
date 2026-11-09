@@ -61,11 +61,8 @@ const PACKAGES = [
       '@deepseek-ai/dsh-client-ui-conversation',
       '@deepseek-ai/dsh-client-ui-primitives',
     ],
-    extraDependencies: {
-      'mdast-util-from-markdown': '2.0.3',
-      'mdast-util-gfm': '3.1.0',
-      'micromark-extension-gfm': '3.0.0',
-    },
+    // 移植过来的 voice 包不再依赖 mdast 三件：朗读用的 markdown 提炼器
+    // （lib/server/markdown-speech.js）已经随包自带，所以这里没有 extraDependencies。
     copy: ['lib', 'test'],
   },
   {

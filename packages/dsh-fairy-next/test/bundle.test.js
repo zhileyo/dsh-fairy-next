@@ -33,13 +33,13 @@ test('declares every bundled package as a dependency', () => {
   }
 });
 
-test('carries the third-party dependencies of the bundled packages', () => {
-  // bundleDependencies 不会替子包解析第三方依赖：装上的树里只有内联副本，
-  // 所以 speech 的 mdast 三件必须由锚包自己声明，否则宿主半边 import 失败。
-  for (const name of bundled) {
-    for (const [dependency, range] of Object.entries(manifests.get(name).dependencies ?? {})) {
-      if (manifests.has(dependency)) continue;
-      assert.equal(anchor.dependencies?.[dependency], range, `${name} needs ${dependency}@${range} from the anchor`);
+test('needs nothing from the registry at runtime', () => {
+  // 锚包的 tarball 内联六个子包，自己又只有 workspace 依赖 —— 于是「装一个包」
+  // 不需要再从 registry 解析任何第三方包。这条不变量一旦破了，离线/弱网环境
+  // 就会装不上，而本地（依赖早就在 node_modules 里）永远测不出来。
+  for (const manifest of manifests.values()) {
+    for (const dependency of Object.keys(manifest.dependencies ?? {})) {
+      assert.ok(manifests.has(dependency), `${manifest.name} 依赖了套件外的 ${dependency}`);
     }
   }
 });

@@ -235,15 +235,16 @@ if (argv.includes('--install-test')) {
 	const tarballs = ordered.map((pkg) => join(outDir, `${pkg.manifest.name}-${pkg.manifest.version}.tgz`))
 	let installed = true
 	try {
-		// --legacy-peer-deps：唯一的 peer 是宿主提供的 @deepseek-ai/cordis，不该由这次测试装；
-		// voice 的三个 mdast 依赖是普通依赖，所以这一步确实要能访问 registry。
+		// --legacy-peer-deps：唯一的 peer 是宿主提供的 @deepseek-ai/cordis，不该由这次测试装。
+		// --offline：七个包之间只有 workspace 依赖，所以整条安装链不该碰 registry；
+		// 一旦有人给某个包加了第三方依赖，这一步会直接失败（而不是在用户机器上失败）。
 		runNpm(
-			['install', '--no-audit', '--no-fund', '--ignore-scripts', '--legacy-peer-deps', ...tarballs],
+			['install', '--no-audit', '--no-fund', '--ignore-scripts', '--legacy-peer-deps', '--offline', ...tarballs],
 			{ cwd: scratch },
 		)
 	} catch (error) {
 		installed = false
-		problems.push(`install test 失败（这一步要联网解析 voice 的 mdast 依赖）—— ${error.message}`)
+		problems.push(`install test 失败（--offline 下装不上，说明有包引入了第三方依赖）—— ${error.message}`)
 	}
 
 	if (installed) {
@@ -270,29 +271,21 @@ if (argv.includes('--install-test')) {
 			if (existsSync(anchorDir)) {
 				const requireFromAnchor = createRequire(join(anchorDir, 'lib', 'index.js'))
 				for (const dep of bundledNames(anchor.manifest)) {
-					let entry
 					try {
-						entry = requireFromAnchor.resolve(dep)
+						requireFromAnchor.resolve(dep)
 					} catch {
 						problems.push(`install test: 从锚包解析不到内联的 ${dep}`)
-						continue
-					}
-					// 内联包自己的第三方依赖（speech 的 mdast 三件）也必须装到能用。
-					const requireFromDep = createRequire(entry)
-					for (const name of Object.keys(byName.get(dep)?.manifest.dependencies ?? {})) {
-						if (byName.has(name)) continue
-						try {
-							requireFromDep.resolve(name)
-						} catch {
-							problems.push(`install test: 内联的 ${dep} 解析不到 ${name}`)
-						}
 					}
 				}
 			}
 		}
 
-		const extra = (await readdir(join(scratch, 'node_modules'))).filter((entry) => !entry.startsWith('.') && !entry.startsWith('@')).length
-		installSummary = `install test: ${ordered.length} package(s) + ${extra - ordered.length} transitive dep(s) installed → ${scratch}`
+		const topLevel = (await readdir(join(scratch, 'node_modules'))).filter((entry) => !entry.startsWith('.') && !entry.startsWith('@'))
+		if (topLevel.length !== ordered.length) {
+			const extra = topLevel.filter((entry) => !byName.has(entry))
+			problems.push(`install test: 装进来的第三方依赖不为空（${extra.join(', ') || '数量不符'}）—— 单包分发不再自足`)
+		}
+		installSummary = `install test: ${ordered.length} package(s) installed offline, 0 transitive dep(s) → ${scratch}`
 	}
 }
 

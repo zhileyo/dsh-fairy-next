@@ -272,19 +272,21 @@ node tools/trust-publisher.mjs --check    # 只读现状
   `pnpm install --lockfile-only` 并把锁文件一起提交（importers 记的是依赖声明）。锚包声明的范围
   必须覆盖得住这一批发出的版本，否则装上后内部依赖会解析到旧包（原因见
   [包与目录](#包与目录)）；
-- `dsh-fairy-speech` 还要装 `mdast-util-from-markdown` / `mdast-util-gfm` /
-  `micromark-extension-gfm`——缺了它的**宿主半边**会 import 失败，表现为启动日志一行
-  `warning: 1 entry did not activate`，其余插件与整页仍正常（0.2.1 对宿主侧失败是告警，
-  客户端侧失败才会驻留启动页）。`bundleDependencies` 只内联子包本身、**不会**替子包装第三方依赖，
-  所以这三件由锚包直接声明（锚包是分发单位，缺了它整套装不上就用）；它们的三份版本号要和
-  `packages/dsh-fairy-speech/package.json` 保持一致。
+- **整套零第三方运行时依赖**：七个包的 `dependencies` 只允许指向套件内的包（`peerDependencies`
+  是宿主提供的 `@deepseek-ai/cordis`，不算在内）。所以 `bundleDependencies` 内联完六个子包之后，
+  锚包的 tarball 就是自足的——装上它不需要再从 registry 解析任何东西（0.1.5 起：朗读用的
+  markdown 提炼器自带在 `packages/dsh-fairy-speech/lib/server/markdown-speech.js`，不再依赖
+  `mdast-*` 那 59 个传递依赖）。这条由 `packages/dsh-fairy-next/test/bundle.test.js` 与
+  `pack-all --install-test` 的 `--offline` 安装共同守住；真需要第三方包时，先想清楚单包分发
+  还成不成立。
 - `pack-all` 按依赖顺序把七个包打到 `.dsh-market-home/pkgs`，并校验三件只有打出来才看得见的
   事——`files` 里写的条目真的在包里、`main`/`exports` 指向的文件也在包里、锚包声明的范围覆盖
   得住这一批的版本；声明了 `bundleDependencies` 的包还会把子包按**已打好 tarball 的文件清单**
   复制进自己的 `node_modules` 再 pack（打完就删），并核对每个子包真的进了 tarball。
-  `--install-test` 再把这批 tarball 真装进临时目录核一遍：版本、`main`/`exports`、以及从锚包
-  按名字解析内联子包、从内联子包解析它自己的第三方依赖（要联网）。别用 `pnpm pack`：那是 pnpm
-  自带的“把当前目录打成包”，会把整个 workspace 打成 `dsh-fairy-next-workspace-0.0.0.tgz`。
+  `--install-test` 再把这批 tarball 以 `--offline` 装进临时目录核一遍：版本、`main`/`exports`、
+  从锚包按名字解析内联子包，以及装完后的 `node_modules` 顶层**只有这七个包**。别用 `pnpm pack`：
+  那是 pnpm 自带的“把当前目录打成包”，会把整个 workspace 打成
+  `dsh-fairy-next-workspace-0.0.0.tgz`。
 
 
 ## 仓库与镜像
@@ -329,6 +331,8 @@ CNB 得先在分支里读到 `.cnb.yml`，才知道有这条拉取流水线。�
 - [x] 市场安装路径（tarball 装进全新 `DSH_HOME`，五个插件全部就位）
 - [x] 单包分发（只装锚包 tarball，六个子包内联在它的 `node_modules/`；`--dump-config` 五行齐、
       宿主侧四个插件 `apply` 成功、五行客户端 bundle 都被 `/plugins/??` 服务返回 200）
+- [x] 单包分发彻底自足（朗读用的 markdown 提炼器收回套件内，去掉 `mdast-*` 那 59 个传递依赖；
+      `pack-all --install-test` 以 `--offline` 安装并断言顶层只有七个包）
 - [x] 中英 i18n 与 `prefers-reduced-motion` 的逐项回归
 - [x] 三个 UI 缺陷：眼睛大小滑条不生效、输入框选不了模型、头部控件位置/间距
 - [x] 市场式一键停/起（禁用锚包插入的五个 id → 全部下线；恢复后重新上线）

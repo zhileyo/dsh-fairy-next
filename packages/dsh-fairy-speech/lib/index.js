@@ -1,6 +1,3 @@
-import { fromMarkdown } from 'mdast-util-from-markdown';
-import { gfmFromMarkdown } from 'mdast-util-gfm';
-import { gfm } from 'micromark-extension-gfm';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { chmod, mkdir, open, readFile, rename, unlink, writeFile } from 'node:fs/promises';
@@ -17,6 +14,7 @@ import {
   writeTtsConfig,
 } from './server/tts-config.js';
 import { createVoiceBriefFallback, createVoiceBrainServerBoundary } from './server/voice-brief-fallback.js';
+import { extractSpeechText } from './server/markdown-speech.js';
 import { createFairyDiagnostics } from 'dsh-fairy-contracts/diagnostics';
 
 // ported: the upstream GPT-SoVITS endpoint is overridable so the same build can
@@ -293,35 +291,11 @@ export function normalizeSpeechText(value) {
   return safeText(text);
 }
 
-const SPEECH_BLOCKS = new Set(['paragraph', 'heading', 'listItem', 'blockquote']);
-const SPEECH_TERMINATORS = /[。！？；.!?;…]$/;
-
-function collectSpeechText(node, output) {
-  if (!node || typeof node !== 'object') return;
-  if (node.type === 'text') {
-    output.push(node.value);
-    return;
-  }
-  if (['inlineCode', 'code', 'html', 'image', 'table'].includes(node.type)) return;
-  const start = output.length;
-  for (const child of node.children || []) collectSpeechText(child, output);
-  /* Markdown removes blank lines structurally. Preserve that boundary for TTS:
-   * prose blocks without punctuation would otherwise be flattened into one
-   * breath, especially in generated lists and short status reports. */
-  if (SPEECH_BLOCKS.has(node.type) && output.length > start) {
-    const last = output[output.length - 1].trim();
-    if (last && !SPEECH_TERMINATORS.test(last)) output.push('；');
-  }
-}
-
+/* 块间停顿由提炼器负责（没有标点的块补一个 `；`），发音级改写交给
+ * normalizeSpeechText —— 这样就不需要第三方 markdown 解析器，
+ * 锚包的一个 tarball 才算真的自足。取舍见 server/markdown-speech.js。 */
 export function markdownToSpeechText(markdown) {
-  const root = fromMarkdown(String(markdown || ''), {
-    extensions: [gfm()],
-    mdastExtensions: [gfmFromMarkdown()],
-  });
-  const output = [];
-  collectSpeechText(root, output);
-  return normalizeSpeechText(output.join(' '));
+  return normalizeSpeechText(extractSpeechText(markdown));
 }
 
 export function splitSpeechSentences(text) {

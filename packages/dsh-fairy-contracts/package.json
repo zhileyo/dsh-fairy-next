@@ -1,6 +1,6 @@
 {
   "name": "dsh-fairy-contracts",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Immutable contracts shared by the Fairy DSH plugins (no DOM, no network, no storage).",
   "type": "module",
   "main": "./index.js",

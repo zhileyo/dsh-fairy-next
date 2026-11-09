@@ -29,12 +29,21 @@ Configuration and uploaded reference audio are written atomically (`open` →
 `write` → `rename`) under `$DSH_HOME`, with `chmod 0600` on anything that can
 carry a credential.
 
-## Why the markdown dependencies
+## Markdown without dependencies
 
-`mdast-util-from-markdown`, `mdast-util-gfm` and `micromark-extension-gfm` are
-only used to turn a reply into the plain brief that gets spoken. They are the
-reason this package is the heavy one in the suite: an install that only wants
-the skin never loads them, because voice is a separate plugin entry.
+Turning a reply into the brief that gets spoken needs markdown parsing, and this
+package used to pull `mdast-util-from-markdown`, `mdast-util-gfm` and
+`micromark-extension-gfm` for it — 59 packages once their transitive closure is
+counted. That broke the suite's single-package promise: the anchor inlines the
+six sub-packages, but nothing inlines *their* third-party dependencies, so an
+install still had to reach the registry.
+
+`lib/server/markdown-speech.js` therefore does the job line by line: fenced
+code, tables, images and inline code are dropped, links keep their text, block
+boundaries become `；` pauses, and inline HTML tags are stripped while their
+text stays. The file's header lists the places where it deliberately differs
+from a real markdown AST (indented code blocks are read aloud, block-level HTML
+containers keep their text). Nothing in the suite depends on npm anymore.
 
 ## Client half
 
