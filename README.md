@@ -256,7 +256,7 @@ node tools/trust-publisher.mjs --check    # 只读现状
 
 打包前提：
 
-- 七个包**同一个版本号**（当前全部 `0.1.2`），一起发。改版本只走
+- 七个包**同一个版本号**（七份 `package.json` 里始终一致，别单独改某一个），一起发。改版本只走
   `node tools/bump-version.mjs <x.y.z>`：它同时改七份 manifest 与锚包的 `^` 范围，之后记得
   `pnpm install --lockfile-only` 并把锁文件一起提交（importers 记的是依赖声明）。锚包声明的范围
   必须覆盖得住这一批发出的版本，否则装上后内部依赖会解析到旧包（原因见

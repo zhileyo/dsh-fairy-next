@@ -1,6 +1,6 @@
 {
   "name": "dsh-fairy-dock",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Browser dock: an in-app browser surface plus the Playwright proxy it drives.",
   "type": "module",
   "main": "./lib/index.js",
@@ -20,7 +20,7 @@
     }
   },
   "dependencies": {
-    "dsh-fairy-contracts": "^0.1.2"
+    "dsh-fairy-contracts": "^0.1.3"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.5"
