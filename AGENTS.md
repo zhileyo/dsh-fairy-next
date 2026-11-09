@@ -130,4 +130,11 @@
   同类账号的实测（[npm/cli#8507](https://github.com/npm/cli/issues/8507)）是「发到第 25 个
   之后当天就不让再建新包，第二天才恢复」。已上架的包正常发新版本不受影响；已发出去的版本
   重跑会被 skip，所以重试是安全的，只是要等。
+- **OIDC 发布偶尔会变成 staged 发布**：`0.1.3` 那次 `dsh-fairy-speech` 在 CI 里打印了
+  `+ dsh-fairy-speech@0.1.3`，registry 上却查不到版本，重跑报
+  `E409 … Cannot publish over previously staged version "0.1.3"`，几分钟后它自己在 registry 上
+  转正（`latest` 也跟上）。所以看到「CI 说发了、registry 查不到」先别升版本号：用
+  `npm stage list <pkg>` 看有没有待审批记录，有就 `npm stage approve <stage-id>`
+  （要 2FA）或到包页面审批；packument 的 CDN 缓存还会再骗你几分钟，务必用干净的
+  `--cache` + `--prefer-online` 复测，别用带 `?t=` 的 URL 猜。
 - `.dsh-dev-home/`、`.dsh-market-home/`、`.pnpm-store/`、`.agents/` 都是本地产物，不要提交。
