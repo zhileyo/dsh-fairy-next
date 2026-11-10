@@ -221,8 +221,9 @@ gh workflow run publish-npm --repo zhileyo/dsh-fairy-next -f dry_run=false   # �
 startup → balance → speech → dock → 锚包（依赖在前）；registry 上已存在的 `name@version`
 直接跳过，所以重复触发是安全的。
 
-Release 页会把刚发出去的七个 tarball 挂成附件，已经存在的 tag 直接跳过；所以不装 npm 的人也能
-从 [Releases](https://github.com/zhileyo/dsh-fairy-next/releases) 直接下。
+Release 页只挂**锚包**那一个附件（用户本来就只装它，六个子包内联在里面），已经存在的 tag
+直接跳过；不装 npm 的人从 [Releases](https://github.com/zhileyo/dsh-fairy-next/releases) 下这一个
+就够。想单独装某个子包的人去 npm 拿——那六个名字仍然逐个发布。
 
 ```powershell
 node tools/pack-all.mjs --install-test           # 本地：打包 + 装一遍核验

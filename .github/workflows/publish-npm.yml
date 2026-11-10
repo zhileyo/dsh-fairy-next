@@ -107,7 +107,8 @@ jobs:
           fi
 
       # npm 上的版本与 tag 是两套账：registry 有了不代表仓库有 release 页。
-      # 打的 tarball 就是刚发出去的那七个字节，挂上去让不装 npm 的人也能直接下。
+      # 附件只挂锚包：用户本来就只装它，六个子包已经内联在里面；想单独装某个
+      # 子包的人去 npm 拿（那边逐个都发了）。挂七个反而要人先想「下哪个」。
       - name: create the GitHub release
         if: github.ref_type == 'tag' && env.DRY_RUN != 'true'
         shell: bash
@@ -119,7 +120,9 @@ jobs:
             echo "release $GITHUB_REF_NAME 已存在，跳过"
             exit 0
           fi
+          version=$(node -p "require('./packages/dsh-fairy-next/package.json').version")
           gh release create "$GITHUB_REF_NAME" \
-            .dsh-market-home/pkgs/*.tgz \
+            ".dsh-market-home/pkgs/dsh-fairy-next-$version.tgz" \
             --title "dsh-fairy-next $GITHUB_REF_NAME" \
+            --notes "整套插件只需装这一个包：\`npm i dsh-fairy-next@$version\`，六个子包已经内联在它的 \`node_modules/\` 里，不需要再从 registry 解析任何东西。" \
             --generate-notes
